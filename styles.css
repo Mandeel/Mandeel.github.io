@@ -1,0 +1,27 @@
+.header {
+   color: #6b5b95; 
+}
+
+a:link {
+  color: green; 
+  background-color: transparent; 
+  text-decoration: none;
+}
+
+a:visited {
+  color: #6b5b95;
+  background-color: transparent;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #6b5b95;
+  background-color: transparent;
+  text-decoration: underline;
+}
+
+a:active {
+  color: #6b5b95;
+  background-color: transparent;
+  text-decoration: underline;
+}
