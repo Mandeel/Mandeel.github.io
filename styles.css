@@ -1,27 +1,38 @@
 .header {
-   color: #6b5b95; 
+   color: #d64161; 
+   	font-weight: normal;
+   letter-spacing: .5em;
+   margin-bottom: 1em;
+   text-transform: uppercase;
+}
+.wlcmPrgf{
+	font-weight: normal;
+   letter-spacing: .4em;
+   margin-bottom: 1em;
+   text-transform: lowercase;
+
 }
 
 a:link {
-  color: #6b5b95; 
+  color: #d64161; 
   background-color: transparent; 
   text-decoration: none;
 }
 
 a:visited {
-  color: #6b5b95;
+  color: #d64161;
   background-color: transparent;
   text-decoration: none;
 }
 
 a:hover {
-  color: #6b5b95;
+  color: #d64161;
   background-color: transparent;
   text-decoration: underline;
 }
 
 a:active {
-  color: #6b5b95;
+  color: #d64161;
   background-color: transparent;
   text-decoration: underline;
 }
