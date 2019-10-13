@@ -13,6 +13,24 @@
 
 }
 
+.LClist{
+  text-align: left;
+  padding-left: 16px;
+}  
+
+
+ul {
+    font-size: 18px;
+    list-style: none;
+    margin: 0 0 0 -0.8125em;
+    padding-left: 0;
+}
+li {
+    position: relative;
+    margin: 0 0 10px 0;
+    padding-left: 11px;
+}
+
 a:link {
   color: #d64161; 
   background-color: transparent; 
