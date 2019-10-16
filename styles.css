@@ -17,12 +17,14 @@
 
 .wlcmPrgf{
 	font-weight: normal;
-   margin: 1REM 0REM 1REM 0REM;
+   margin: 14vw 0em 5vw 0em;
    letter-spacing: .4em;
    text-transform: lowercase;
 }
 .wlcmPrgf h1{
   font-size: 5EM;
+  margin: 0vw 0em 5vw 0em;
+
 
 }
 .wlcmPrgf p{
