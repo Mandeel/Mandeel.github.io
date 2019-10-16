@@ -10,11 +10,10 @@
 
 .wlcmPrgf{
 	font-weight: normal;
-   margin: 0REM 0REM 0REM 0REM;
+   margin: 1REM 0REM 0REM 0REM;
    letter-spacing: .4em;
    margin-bottom: 1em;
    text-transform: lowercase;
-
 }
 .wlcmPrgf h1{
   font-size: 5EM;
@@ -71,4 +70,27 @@ a:active {
   color: #d64161;
   background-color: transparent;
   text-decoration: underline;
+}
+
+@media screen and (max-width: 800px) {
+
+  .wlcmPrgf{
+    width: 100%
+  font-weight: normal;
+   margin: 1REM 0REM 0REM 0REM;
+   letter-spacing: .4em;
+   margin-bottom: 1em;
+   text-transform: lowercase;
+  }
+.wlcmPrgf h1{
+  font-size: 7vw;
+
+}
+.wlcmPrgf p{
+  font-size: 5vw;
+
+}
+
+
+
 }
