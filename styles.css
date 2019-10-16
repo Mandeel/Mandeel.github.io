@@ -16,7 +16,7 @@
 
 
 .wlcmPrgf{
-	font-weight: normal;
+	 font-weight: normal;
    margin: 14vw 0em 5vw 0em;
    letter-spacing: .4em;
    text-transform: lowercase;
@@ -24,7 +24,6 @@
 .wlcmPrgf h1{
   font-size: 5EM;
   margin: 0vw 0em 5vw 0em;
-
 
 }
 .wlcmPrgf p{
@@ -87,13 +86,14 @@ a:active {
   .wlcmPrgf{
     width: 100%
   font-weight: normal;
-   margin: 1REM 0REM 0REM 0REM;
+   margin: 14vw 0em 5vw 0em;
    letter-spacing: .4em;
    margin-bottom: 1em;
    text-transform: lowercase;
 
   }
 .wlcmPrgf h1{
+  margin: 0vw 0em 5vw 0em;
   font-size: 7vw;
 
 }
@@ -108,7 +108,7 @@ a:active {
   .wlcmPrgf{
     width: 100%
     font-weight: normal;
-    margin: 1REM 0REM 0REM 0REM;
+   margin: 14vw 0em 5vw 0em;
     letter-spacing: .4em;
     margin-bottom: 1em;
     text-transform: lowercase;
