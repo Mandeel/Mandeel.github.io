@@ -141,6 +141,11 @@ a:active {
 }  
 
 .header2 {
+
+       font-size: 7vw;
+
+}
+.header2 {
   margin: 1REM 0REM 0REM 2REM;
 
   text-align: center;
