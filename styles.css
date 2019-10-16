@@ -81,6 +81,7 @@ a:active {
    letter-spacing: .4em;
    margin-bottom: 1em;
    text-transform: lowercase;
+
   }
 .wlcmPrgf h1{
   font-size: 7vw;
@@ -90,7 +91,25 @@ a:active {
   font-size: 5vw;
 
 }
+@media screen and (max-width: 2162px) {
 
+  .wlcmPrgf{
+    width: 100%
+  font-weight: normal;
+   margin: 1REM 0REM 0REM 0REM;
+   letter-spacing: .4em;
+   margin-bottom: 1em;
+   text-transform: lowercase;
+   
+  }
+.wlcmPrgf h1{
+  font-size: 7vw;
+
+}
+.wlcmPrgf p{
+  font-size: 5vw;
+
+}
 
 
 }
