@@ -6,6 +6,13 @@
    text-transform: uppercase;
 }
 
+.header2 {
+   color: #d64161; 
+   font-weight: normal;
+   letter-spacing: .5em;
+   margin: 1.5em 0em 0em 0em;
+   text-transform: uppercase;
+}
 
 
 .wlcmPrgf{
@@ -23,6 +30,8 @@
 
 }
 .LClist{
+    font-size: 5EM;
+
   text-align: left;
   margin: 0REM 0REM 0REM 2REM;
 }  
@@ -92,10 +101,7 @@ a:active {
 }
 @media screen and (max-width: 2162px) {
 
-.header {
 
-   text-transform: uppercase;
-}
 
   .wlcmPrgf{
     width: 100%
@@ -124,12 +130,24 @@ a:active {
       position: relative;
       margin: 3vw 0vw 0vw 0vw;
       font-weight: normal;
-      font-size: 5vw;
+      font-size: 4vw;
       text-transform: uppercase;
   }
 .LClist{
   text-align: center;
   margin: 0REM 0REM 0REM 0REM;
+    font-size: 2vw;
+
 }  
+
+.header2 {
+  margin: 1REM 0REM 0REM 2REM;
+
+  text-align: center;
+  position: relative;
+   text-transform: uppercase;
+       font-size: 5vw;
+
+}
 
 }
