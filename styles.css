@@ -36,7 +36,14 @@
   text-align: left;
   margin: 0REM 0REM 0REM 2REM;
 }  
+.Quote{
 
+    font-size: 1EM;
+
+  text-align: center;
+  margin: 15REM 0REM 0REM 2REM;
+
+}
 
 ul {
     font-size: 18px;
