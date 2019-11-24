@@ -15,18 +15,18 @@
 }
 
 
-.wlcmPrgf{
+.WelcomeMSG{
 	 font-weight: normal;
    margin: 14vw 0em 5vw 0em;
    letter-spacing: .4em;
    text-transform: lowercase;
 }
-.wlcmPrgf h1{
+.WelcomeMSG h1{
   font-size: 5EM;
   margin: 0vw 0em 5vw 0em;
 
 }
-.wlcmPrgf p{
+.WelcomeMSG p{
   font-size: 1.1EM;
 
 }
@@ -43,8 +43,8 @@
   position: absolute;
   bottom: 5px;
   left: 50%;
-  width: 200px;
-  margin-left: -100px;
+  width: 300px;
+  margin-left: -150px;
 
 
 }
