@@ -1,0 +1,83 @@
+.WelcomeMSG {
+
+   margin: 14em 0em 5em 0em;
+}
+
+.WelcomeMSG h1 {
+
+  margin: 0vw 0em 5vw 0em;
+  color: #d64161; 
+  font-size: 5EM;  
+  font-weight: normal;
+  letter-spacing: .5em;
+  text-transform: uppercase;
+}
+
+.WelcomeMSG p {
+
+  font-size: 1.1EM;
+  letter-spacing: .4em;
+}
+
+.WelcomeMSG a:link {
+  color: #d64161; 
+  margin: 0 10px 10px 0;
+  background-color: transparent; 
+  text-decoration: none;
+}
+
+.WelcomeMSG a:visited {
+  color: #d64161;
+  background-color: transparent;
+  text-decoration: none;
+}
+
+.WelcomeMSG a:hover {
+  color: #d64161;
+  background-color: transparent;
+  text-decoration: underline;
+}
+
+.WelcomeMSG a:active {
+  color: #d64161;
+  background-color: transparent;
+  text-decoration: underline;
+}
+
+
+.Quote {
+
+  font-size: 1EM;
+  text-align: center;
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  width: 300px;
+  margin-left: -150px;
+
+}
+
+@media screen and (max-width: 800px) {
+
+  .WelcomeMSG {
+
+   margin: 10em 0em 5em 0em;
+}
+
+.WelcomeMSG h1 {
+
+  color: #d64161; 
+  font-size: 2.5em;  
+  font-weight: normal;
+  letter-spacing: .5em;
+  text-transform: uppercase;
+  margin: 2em 0em 3em 0em;
+
+}
+
+.WelcomeMSG p {
+
+  font-size: 1.5em;
+}
+
+}
