@@ -5,9 +5,9 @@
 
 .WelcomeMSG h1 {
 
-  margin: 0vw 0em 5vw 0em;
+  margin: 0em 0em 5em 0em;
   color: #d64161; 
-  font-size: 5EM;  
+  font-size: 5em;  
   font-weight: normal;
   letter-spacing: .5em;
   text-transform: uppercase;
@@ -16,14 +16,16 @@
 .WelcomeMSG p {
 
   font-size: 1.1EM;
-  letter-spacing: .4em;
+  letter-spacing: .2em;
+
 }
 
 .WelcomeMSG a:link {
+
   color: #d64161; 
-  margin: 0 10px 10px 0;
   background-color: transparent; 
   text-decoration: none;
+
 }
 
 .WelcomeMSG a:visited {
