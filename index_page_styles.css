@@ -1,11 +1,11 @@
 .WelcomeMSG {
 
-   margin: 14em 0em 5em 0em;
+   margin: 10em 0em 5em 0em;
 }
 
 .WelcomeMSG h1 {
 
-  margin: 0em 0em 5em 0em;
+  margin: 0em 0em 2em 0em;
   color: #d64161; 
   font-size: 5em;  
   font-weight: normal;
@@ -81,6 +81,7 @@
 .WelcomeMSG p {
 
     font-size: 1.5em;
+
   }
 
 }
