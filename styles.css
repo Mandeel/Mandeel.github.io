@@ -38,10 +38,14 @@
 }  
 .Quote{
 
-    font-size: 1EM;
-
+  font-size: 1EM;
   text-align: center;
-  margin: 15REM 0REM 0REM 2REM;
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  width: 200px;
+  margin-left: -100px;
+
 
 }
 
