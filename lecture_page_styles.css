@@ -10,6 +10,17 @@
 
 }
 
+.header2 {
+
+  color: #d64161; 
+  font-weight: normal;
+  letter-spacing: .5em;
+  margin: 1.5em 0em 0em 0em;
+  text-transform: uppercase;
+  text-align: left;
+
+}
+
 .topics{
 
   font-size: 1.4em;
@@ -66,6 +77,12 @@
 
 
 @media screen and (max-width: 800px) {
+
+  .header2 {
+
+  text-align: center;
+
+}
 
   .topics{
 
