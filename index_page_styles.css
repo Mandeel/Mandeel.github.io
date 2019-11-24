@@ -63,24 +63,24 @@
 
   .WelcomeMSG {
 
-   margin: 10em 0em 5em 0em;
-}
+     margin: 10em 0em 5em 0em;
+  }
 
 .WelcomeMSG h1 {
 
-  color: #d64161; 
-  font-size: 2.5em;  
-  font-weight: normal;
-  letter-spacing: .3em;
-  text-transform: uppercase;
-  text-align: center;
-  margin: 2em 0em 3em 0em;
+    color: #d64161; 
+    font-size: 2.5em;  
+    font-weight: normal;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    text-align: center;
+    margin: 2em 0em 3em 0em;
 
-}
+  }
 
 .WelcomeMSG p {
 
-  font-size: 1.5em;
-}
+    font-size: 1.5em;
+  }
 
 }
