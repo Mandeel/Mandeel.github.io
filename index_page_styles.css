@@ -130,8 +130,6 @@
 
 .about {
 
-  overflow: auto;
-
   height: 10em;
   width: 100%;
   float:none;
@@ -142,8 +140,6 @@
 
 .contact {
 
-  overflow: auto;
-
   height: 10em;
   width: 100%;
   float:none;
@@ -153,7 +149,6 @@
 }
 
 .Quote {
-  overflow: auto;
 
   height: 10em;
   width: 100%;
