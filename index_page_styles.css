@@ -105,10 +105,20 @@
   line-height: 1.7em; 
   margin: 0em 4em 0 4em;
   text-decoration: none;
+  text-align: center;
+
 
 }
 
 #inner a:visited {
+
+  color: #d64161;
+  background-color: transparent;
+  text-decoration: none;
+}
+
+#inner a:link {
+
   color: #d64161;
   background-color: transparent;
   text-decoration: none;
