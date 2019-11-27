@@ -1,6 +1,7 @@
 .WelcomeMSG {
 
    margin: 10em 0em 5em 0em;
+   padding-bottom: 15em;
 }
 
 .WelcomeMSG h1 {
@@ -46,16 +47,48 @@
   text-decoration: underline;
 }
 
+.footer{
+
+  background-color: #F5F0F0;
+  height: 15em;
+  width: 100%;
+
+  font-size: 0.85em;
+  font-weight: normal;
+
+
+
+}
+.about {
+
+  margin-top: 2em;
+  height: 10em;
+  width: 33.33%;
+  float:left;
+
+  text-align: center;
+
+}
+
+.contact {
+
+  margin-top: 2em;
+  height: 10em;
+  width: 33.33%;
+  float:left;
+
+  text-align: center;
+
+}
 
 .Quote {
 
-  font-size: 1EM;
+  margin-top: 2em;
+  height: 10em;
+  width: 33.33%;
+  float:left;
+
   text-align: center;
-  position: absolute;
-  bottom: 5px;
-  left: 50%;
-  width: 300px;
-  margin-left: -150px;
 
 }
 
