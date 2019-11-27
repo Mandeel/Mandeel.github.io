@@ -108,6 +108,26 @@
 
 }
 
+#inner a:visited {
+  color: #d64161;
+  background-color: transparent;
+  text-decoration: none;
+}
+
+#inner a:active{
+
+  color: #d64161;
+  background-color: transparent;
+  text-decoration: none;
+
+}
+
+#inner a:hover {
+  color: #d64161;
+  background-color: transparent;
+  text-decoration: underline;
+}
+
 @media screen and (max-width: 800px) {
 
   .WelcomeMSG {
