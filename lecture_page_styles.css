@@ -104,7 +104,7 @@
 
 .bar a{
 
-  visibility: hidden;
+  display: none;
 
 }
 
