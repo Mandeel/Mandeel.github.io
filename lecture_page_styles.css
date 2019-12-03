@@ -13,11 +13,12 @@
 .header2 {
 
   color: #d64161; 
-  font-weight: normal;
+  font-weight: bold;
   letter-spacing: .5em;
   margin: 1.5em 0em 0em 0em;
   text-transform: uppercase;
   text-align: left;
+
 
 }
 
