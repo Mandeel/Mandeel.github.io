@@ -102,6 +102,12 @@
 
 }
 
+.bar a{
+
+  visibility: hidden;
+
+}
+
   .topics{
 
     text-align: center;
