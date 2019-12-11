@@ -197,9 +197,9 @@ a {
   display: inline-flex;
   height: 40px;
   width: 150px;
-  border: 2px solid #BFC0C0;
+  border: 2px solid #d64161;
   margin: 20px 20px 20px 20px;
-  color: #BFC0C0;
+  color: #d64161;
   text-transform: uppercase;
   text-decoration: none;
   font-size: .8em;
@@ -210,7 +210,7 @@ a {
 }
 
 a {
-  color: #BFC0C0;
+  color: #d64161;
   text-decoration: none;
   letter-spacing: 1px;
 }
