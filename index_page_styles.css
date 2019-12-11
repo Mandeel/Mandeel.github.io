@@ -256,6 +256,17 @@ a {
 
 }
 
+#inner{
+
+  text-align: center;
+  line-height: 1.7em; 
+  margin: 0em 2em 0 2em;
+  text-decoration: none;
+  text-align: center;
+
+
+}
+
 .about {
 
   padding-top: 2em;
