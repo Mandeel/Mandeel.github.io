@@ -21,30 +21,58 @@
 
 }
 
-.WelcomeMSG a:link {
 
-  color: #d64161; 
-  background-color: transparent; 
+/* Button Styles */
+
+.button {
+  display: inline-flex;
+  height: 40px;
+  width: 150px;
+  border: 2px solid #d64161;
+  margin: 20px 20px 20px 20px;
+  color: #BFC0C0;
+  text-transform: uppercase;
   text-decoration: none;
-
+  font-size: .8em;
+  letter-spacing: 1.5px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
-.WelcomeMSG a:visited {
+a {
   color: #d64161;
-  background-color: transparent;
   text-decoration: none;
+  letter-spacing: 1px;
 }
 
-.WelcomeMSG a:hover {
-  color: #d64161;
-  background-color: transparent;
-  text-decoration: underline;
+#button-4 {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
 }
 
-.WelcomeMSG a:active {
-  color: #d64161;
-  background-color: transparent;
-  text-decoration: underline;
+#button-4 a {
+  position: relative;
+  transition: all .45s ease-Out;
+  padding: 3em;
+  margin: -2em;
+}
+
+#underline {
+  width: 100%;
+  height: 2.5px;
+  margin-top: 15px;
+  align-self: flex-end;
+  left: -200px;
+  background: #d64161;
+  position: absolute;
+  transition: all .3s ease-Out;
+  bottom: 0;
+}
+
+#button-4:hover #underline {
+  left: 0;
 }
 
 .footer{
@@ -162,6 +190,59 @@
     font-size: 1.5em;
 
   }
+
+/* Button Styles */
+
+.button {
+  display: inline-flex;
+  height: 40px;
+  width: 150px;
+  border: 2px solid #BFC0C0;
+  margin: 20px 20px 20px 20px;
+  color: #BFC0C0;
+  text-transform: uppercase;
+  text-decoration: none;
+  font-size: .8em;
+  letter-spacing: 1.5px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+a {
+  color: #BFC0C0;
+  text-decoration: none;
+  letter-spacing: 1px;
+}
+  
+
+#button-4 {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+#button-4 a {
+  position: relative;
+  transition: all .45s ease-Out;
+}
+
+#underline {
+  width: 100%;
+  height: 2.5px;
+  margin-top: 15px;
+  align-self: flex-end;
+  left: -200px;
+  background: #BFC0C0;
+  position: absolute;
+  transition: all .3s ease-Out;
+  bottom: 0;
+}
+
+#button-4:hover #underline {
+  left: 0;
+}
+
 
 .footer{
 
