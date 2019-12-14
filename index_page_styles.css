@@ -1,3 +1,30 @@
+
+#rect{
+
+  width: 30em;
+  height:30em;
+  stroke:#fff;
+  fill:#fff;
+  fill-opacity:0;
+  stroke-opacity:0;
+}
+
+#bell {
+
+  display: block;
+  margin: 0em 0em -2em 98%;
+
+  fill: #FFD200;
+  width: 2em;
+  height: 2em;
+
+}
+#bell:hover {
+  
+  fill: #F2F4F4;
+
+}
+
 .WelcomeMSG {
 
    margin: 10em 0em 5em 0em;
