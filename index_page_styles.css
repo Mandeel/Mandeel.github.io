@@ -12,7 +12,7 @@
 #bell {
 
   display: block;
-  margin: 0em 0em -2em 98%;
+  margin: 0em 0em -2em 97%;
 
   fill: #FFD200;
   width: 2em;
@@ -20,7 +20,7 @@
 
 }
 #bell:hover {
-  
+
   fill: #F2F4F4;
 
 }
@@ -194,6 +194,13 @@ a {
 }
 
 @media screen and (max-width: 800px) {
+
+
+  #bell {
+
+  margin: 0em 0em -2em 95%;
+
+}
 
   .WelcomeMSG {
 
