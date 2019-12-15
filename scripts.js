@@ -27,15 +27,16 @@ function getCookie(cname) {
 }
 
 function checkCookie() {
-  var username = getCookie("NotificationCatched");
-  if (username != "") {
+  var clicked = getCookie("NotificationCatched");
+  if (clicked != 0) {
   document.getElementById("bell").style.fill = "#F2F4F4";
 
    //alert("Welcome again " + username);
   } else {
-    username = prompt("Please enter your name:", "");
-    if (username != "" && username != null) {
-      setCookie("NotificationCatched", username, 365);
+    //username = prompt("Please enter your name:", "");
+    clicked = 1
+    if (clicked != "" && clicked != null) {
+      setCookie("NotificationCatched", clicked, 7);
     }
   }
 }
