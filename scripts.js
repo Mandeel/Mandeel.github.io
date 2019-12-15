@@ -35,6 +35,8 @@ function checkCookie() {
   } else {
     //username = prompt("Please enter your name:", "");
     clicked = 1
+      document.getElementById("bell").style.fill = "#F2F4F4";
+
     if (clicked != "" && clicked != null) {
       setCookie("NotificationCatched", clicked, 7);
     }
