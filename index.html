@@ -40,7 +40,7 @@
 
 		<script type="text/javascript">
 			checkCookie()
-			if (clicked == 1) {
+			if (NotificationCatched == 1) {
   			document.getElementById("bell").style.fill = "#F2F4F4";
 		</script>
 
@@ -55,7 +55,7 @@
 
 			<rect id="rect"  
             
-            onClick="alert('يوم 15/12 لن اكون متواجد في الجامعة');bell.style.fill= '#F2F4F4'"/>
+            onClick="alert('يوم 15/12 لن اكون متواجد في الجامعة');setCookie('NotificationCatched', 1, 7);"/>
 
 			</g>
 
