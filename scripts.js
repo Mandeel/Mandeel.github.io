@@ -23,13 +23,15 @@ function getCookie(cname) {
 }
 
 function checkCookie() {
-  var username = getCookie("username");
+  var username = getCookie("NotificationCatched");
   if (username != "") {
-   alert("Welcome again " + username);
+  document.getElementById("bell").style.fill = "#F2F4F4";
+
+   //alert("Welcome again " + username);
   } else {
     username = prompt("Please enter your name:", "");
     if (username != "" && username != null) {
-      setCookie("username", username, 365);
+      setCookie("NotificationCatched", username, 365);
     }
   }
 }
