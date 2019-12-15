@@ -27,7 +27,7 @@ function getCookie(cname) {
 }
 
 function checkCookie() {
-  var clicked = getCookie("NotificationCatched");
+  /*var clicked = getCookie("NotificationCatched");
   if (clicked != 0) {
   document.getElementById("bell").style.fill = "#F2F4F4";
 
@@ -40,5 +40,7 @@ function checkCookie() {
     if (clicked != "" && clicked != null) {
       setCookie("NotificationCatched", clicked, 7);
     }
-  }
+  }*/
+  document.getElementById("bell").style.fill = "#F2F4F4";
+
 }
