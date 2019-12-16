@@ -9,7 +9,7 @@
   stroke-opacity:0;
 }
 
-#bell {
+#notification-trigger {
 
   display: block;
   margin: 0em 0em -2em 97%;
@@ -19,7 +19,7 @@
   height: 2em;
 
 }
-#bell:hover {
+#notification-trigger:hover {
 
   fill: #d64161;
 
