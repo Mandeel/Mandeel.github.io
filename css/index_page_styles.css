@@ -1,27 +1,13 @@
 
-#rect{
-
-  width: 30em;
-  height:30em;
-  stroke:#fff;
-  fill:#fff;
-  fill-opacity:0;
-  stroke-opacity:0;
-}
 
 #notification-trigger {
 
   display: block;
-  margin: 0em 0em -2em 97%;
+  margin: 1em 2em -2em 98%;
 
   fill: #FFD200;
-  width: 2em;
-  height: 2em;
-
-}
-#notification-trigger:hover {
-
-  fill: #d64161;
+  width: 1.7em;
+  height: 1.7em;
 
 }
 
@@ -196,7 +182,7 @@ a {
 @media screen and (max-width: 800px) {
 
 
-  #bell {
+#notification-trigger {
 
   margin: 0em 0em -2em 90%;
 
