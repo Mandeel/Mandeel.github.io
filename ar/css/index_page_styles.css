@@ -1,4 +1,11 @@
-body{
+@font-face {
+font-family: "CustomFont";
+src: url("../../Files/fonts/DubaiW23-Bold.woff");
+}
+
+
+body {
+background-color: #2e4053;
 -ms-overflow-style: none; /* Hide scrollbars */
 }
 
@@ -9,7 +16,7 @@ body{
 #notification-trigger {
 
   display: block;
-  margin: 1em 3em -2em 97%;
+  margin: 1em 1em -2em 99%;
 
   fill: #FFD200;
   width: 1.7em;
@@ -17,37 +24,36 @@ body{
 
 }
 
-#lang_ar {
+
+#lang_en {
 
   display: block;
-  margin: 0.5em 99% -2em 1em;
+  margin: 0.5em 98% -2em 2em;
 
   fill: #FFD200;
   width: 1.7em;
   height: 1.7em;
-
 }
 
 .WelcomeMSG {
-
-   margin: 10em 0em 5em 0em;
-   padding-bottom: 15em;
+  color: #ffffff; 
+  font-family: CustomFont;
+  margin: 10em 0em 5em 0em;
+  padding-bottom: 15em;
 }
 
 .WelcomeMSG h1 {
 
-  margin: 0em 0em 2em 0em;
-  color: #d64161; 
+  margin: 0em 0em 1em 0em;
   font-size: 5em;  
   font-weight: normal;
-  letter-spacing: .5em;
   text-transform: uppercase;
 }
 
 .WelcomeMSG p {
 
   font-size: 1.1EM;
-  letter-spacing: .2em;
+
 
 }
 
@@ -58,9 +64,9 @@ body{
   display: inline-flex;
   height: 40px;
   width: 150px;
-  border: 2px solid #d64161;
+  border: 2px solid #f4d03f;
   margin: 20px 20px 20px 20px;
-  color: #BFC0C0;
+  color: #f4d03f;
   text-transform: uppercase;
   text-decoration: none;
   font-size: .8em;
@@ -71,7 +77,7 @@ body{
 }
 
 a {
-  color: #d64161;
+  color: #ffffff;
   text-decoration: none;
   letter-spacing: 1px;
 }
@@ -94,20 +100,20 @@ a {
   height: 2.5px;
   margin-top: 15px;
   align-self: flex-end;
-  left: -200px;
-  background: #d64161;
+  right: -200px;
+  background: #f4d03f;
   position: absolute;
   transition: all .3s ease-Out;
   bottom: 0;
 }
 
 #button-4:hover #underline {
-  left: 0;
+  right: 0;
 }
 
 .footer{
 
-  background-color: #F5F0F0;
+  background-color: #f5eef8;
   height: 15em;
   width: 100%;
 
@@ -122,7 +128,7 @@ a {
   padding-top: 1em;
   height: 10em;
   width: 33.33%;
-  float:left;
+  float:right;
 
   text-align: center;
 
@@ -133,18 +139,18 @@ a {
   padding-top: 1em;
   height: 10em;
   width: 33.33%;
-  float:left;
+  float:right;
 
   text-align: center;
 
 }
 
-.Proverb {
+.Quote {
 
   padding-top: 1em;
   height: 10em;
   width: 33.33%;
-  float:left;
+  float:right;
 
   text-align: center;
 
@@ -201,31 +207,25 @@ a {
 
 #notification-trigger {
 
-  margin: 0.5em 0em -2em 90%;
+  margin: 0em 0em -2em 90%;
 
 }
 
-#lang_ar {
 
-  margin: 0.5em 99% -2em 1em;
-
+#lang_en {
+  margin: 0.5em 96% -2em 4em;
 }
-
 
   .WelcomeMSG {
 
-     margin: 10em 0em 5em 0em;
+     margin: 7em 0em 5em 0em;
   }
 
 .WelcomeMSG h1 {
 
-    color: #d64161; 
     font-size: 2.5em;  
-    font-weight: normal;
-    letter-spacing: .3em;
-    text-transform: uppercase;
     text-align: center;
-    margin: 2em 0em 3em 0em;
+    margin: 1em 0em 1em 0em;
 
   }
 
@@ -241,9 +241,7 @@ a {
   display: inline-flex;
   height: 40px;
   width: 150px;
-  border: 2px solid #d64161;
   margin: 20px 20px 20px 20px;
-  color: #d64161;
   text-transform: uppercase;
   text-decoration: none;
   font-size: .8em;
@@ -254,7 +252,6 @@ a {
 }
 
 a {
-  color: #d64161;
   text-decoration: none;
   letter-spacing: 1px;
 }
@@ -277,7 +274,6 @@ a {
   margin-top: 15px;
   align-self: flex-end;
   left: -200px;
-  background: #d64161;
   position: absolute;
   transition: all .3s ease-Out;
   bottom: 0;
@@ -290,12 +286,10 @@ a {
 
 .footer{
 
-  background-color: #F5F0F0;
   height: 50em;
   width: 100%;
-
+  background-color: #f5eef8;
   font-size: 0.85em;
-  font-weight: normal;
 
 
 }
@@ -331,7 +325,7 @@ a {
 
 }
 
-.Proverb {
+.Quote {
 
   padding-top: 2em;
   height: 15em;

@@ -1,0 +1,150 @@
+
+@font-face {
+font-family: "CustomFont";
+src: url("../../Files/fonts/DubaiW23-Bold.woff");
+}
+
+@font-face {
+font-family: "CustomFont2";
+src: url("../../Files/fonts/DubaiW23-Light.woff");
+}
+
+
+.header {
+
+  color: #ffffff; 
+  font-weight: normal;
+  margin: 1.5em 0em 0em 0em;
+  text-align: right;
+  font-size: 2em;
+
+}
+
+.header2 {
+
+  color: #ffffff; 
+  margin: 1.5em 0em 0em 0em;
+  text-transform: uppercase;
+  text-align: right;
+
+
+}
+
+body{
+
+  font-family: CustomFont;
+}
+
+.bar {
+
+  margin: 1.5em 0em 0em 0em;
+
+}
+.bar img{
+
+  height: 1.5em;
+
+}
+
+.bar a{
+
+  margin: 0.3em 0em 0em 0em;
+  display: inline;
+  float: left;
+
+}
+.bar h1{
+
+  display: inline;
+
+}
+body{
+
+  background-color: #2e4053;
+
+}
+
+.topics{
+
+  font-size: 1.2em;
+  text-align: right;
+  margin: 5em 0em 0em 0em;
+
+}  
+
+.topics ul {
+
+  list-style: none;
+  text-transform: uppercase;
+
+}
+
+.topics li {
+  
+  font-family: CustomFont2;
+  position: relative;
+  margin: 1.5em 0em 0em 0em;
+
+}
+
+.topics a:link {
+
+  color: #ffffff; 
+  background-color: transparent; 
+  text-decoration: none;
+
+}
+
+.topics a:visited {
+
+  color: #ffffff;
+  background-color: transparent;
+  text-decoration: none;
+
+}
+
+.topics a:hover {
+
+  color: #ffffff;
+  background-color: transparent;
+  text-decoration: underline;
+
+}
+
+.topics a:active {
+
+  color: #ffffff;
+  background-color: transparent;
+  text-decoration: underline;
+
+}
+
+
+@media screen and (max-width: 800px) {
+
+  .header2 {
+
+  text-align: right;
+
+}
+
+.bar a{
+
+  display: none;
+
+}
+
+  .topics{
+
+    text-align: right;
+    margin: 5em 0em 0em -2em;
+
+  }  
+
+  .topics li {
+
+    margin: 1.5em 0em 0em 0em;
+
+  }
+
+}
