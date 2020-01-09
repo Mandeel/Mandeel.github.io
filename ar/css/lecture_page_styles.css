@@ -24,7 +24,6 @@ src: url("../../Files/fonts/DubaiW23-Light.woff");
 
   color: #ffffff; 
   margin: 1.5em 0em 0em 0em;
-  text-transform: uppercase;
   text-align: right;
 
 
@@ -75,7 +74,6 @@ body{
 .topics ul {
 
   list-style: none;
-  text-transform: uppercase;
 
 }
 
