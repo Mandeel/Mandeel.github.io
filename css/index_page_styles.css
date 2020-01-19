@@ -6,31 +6,33 @@ body{
   display: none;
 }
 
-#notification-trigger {
+#top_bar{
+    margin: 0em 0em 0em 0em;
+    display: block;
 
-  display: block;
-  margin: 1em 3em -2em 97%;
+}
+
+#notification-trigger {
 
   fill: #FFD200;
   width: 1.7em;
   height: 1.7em;
+  margin: 0em 0.3em 0em 0.3em;
 
 }
 
 #lang_ar {
 
-  display: block;
-  margin: 0.5em 99% -2em 1em;
 
-  fill: #FFD200;
   width: 1.7em;
   height: 1.7em;
+  margin: 0em 0.3em 0em 0.3em;
 
 }
 
 .WelcomeMSG {
 
-   margin: 10em 0em 5em 0em;
+   margin: 6em 0em 5em 0em;
    padding-bottom: 15em;
 }
 

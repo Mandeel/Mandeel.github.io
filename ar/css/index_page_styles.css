@@ -13,26 +13,26 @@ background-color: #2e4053;
   display: none;
 }
 
-#notification-trigger {
-
-  display: block;
-  margin: 1em 1em -2em 99%;
-
-  fill: #FFD200;
-  width: 1.7em;
-  height: 1.7em;
+#top_bar{
+    display: block;
 
 }
 
+#notification-trigger {
+
+  width: 1.7em;
+  height: 1.7em;
+  margin: 0em 0.3em 0em 0.3em;
+
+}
 
 #lang_en {
 
-  display: block;
-  margin: 0.5em 98% -2em 2em;
 
-  fill: #FFD200;
   width: 1.7em;
   height: 1.7em;
+  margin: 0em 0.3em 0em 0.3em;
+
 }
 
 .WelcomeMSG {
