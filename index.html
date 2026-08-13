@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام حساب هبوط مجاميع الركائز المتقدم | Fixed Layout</title>
+    <title>نظام حساب هبوط مجاميع الركائز المتقدم | Structural Settlement Engine</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -12,6 +12,7 @@
             --accent-amber: #f59e0b;
             --accent-green: #10b981;
             --accent-red: #ef4444;
+            --accent-purple: #8b5cf6;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
         }
@@ -30,16 +31,14 @@
             direction: rtl;
         }
 
-        /* Fixed Grid Layout */
         .container {
-            max-width: 1450px;
+            max-width: 1500px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: 380px 1fr;
+            grid-template-columns: 440px 1fr;
             gap: 20px;
         }
 
-        /* Prevent Grid items from expanding beyond allocated columns */
         .sidebar, .visualization-card, .panel, .matrix-container, .steps-log {
             min-width: 0;
         }
@@ -55,14 +54,14 @@
             align-items: center;
         }
 
-        header h1 { font-size: 1.4rem; color: var(--accent-blue); margin-bottom: 5px;}
-        header p { color: var(--text-muted); font-size: 0.9rem; }
+        header h1 { font-size: 1.35rem; color: var(--accent-blue); margin-bottom: 5px;}
+        header p { color: var(--text-muted); font-size: 0.88rem; }
 
         .status-badge {
             padding: 8px 18px;
             border-radius: 20px;
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 1rem;
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -73,106 +72,122 @@
 
         .panel {
             background: var(--card-bg);
-            padding: 20px;
+            padding: 18px;
             border-radius: 12px;
             border: 1px solid #334155;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         .panel h2 {
-            font-size: 1.05rem;
-            margin-bottom: 15px;
-            color: var(--text-main);
+            font-size: 0.98rem;
+            margin-bottom: 12px;
+            color: var(--accent-amber);
             border-bottom: 2px solid #334155;
-            padding-bottom: 8px;
+            padding-bottom: 6px;
         }
 
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; }
-        .form-group input {
-            width: 100%; padding: 8px; background: #0f172a; border: 1px solid #334155;
-            border-radius: 6px; color: var(--text-main); font-size: 0.95rem;
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 7px 10px; background: #0f172a; border: 1px solid #334155;
+            border-radius: 6px; color: var(--text-main); font-size: 0.88rem;
         }
 
-        /* Fixed Matrix Input Grid */
-        .matrix-container {
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        
+        /* Independent Tanks Control UI */
+        .tanks-grid {
             display: grid;
-            grid-template-columns: auto repeat(3, 1fr);
-            gap: 6px;
-            align-items: center;
-            margin-bottom: 10px;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
             background: #090d16;
             padding: 12px;
             border-radius: 8px;
             border: 1px solid #334155;
+            margin-top: 10px;
+        }
+        .tank-control { display: flex; flex-direction: column; gap: 5px; }
+        .tank-control label { color: var(--accent-blue); font-weight: bold; font-size: 0.75rem;}
+        .slider-row { display: flex; align-items: center; gap: 8px; }
+        .slider-row input[type="range"] { flex-grow: 1; }
+        .slider-val { width: 35px; font-size: 0.75rem; text-align: left; direction: ltr; font-weight: bold;}
+
+        /* Matrix Container Fixed UI */
+        .matrix-container {
+            display: grid;
+            grid-template-columns: auto repeat(3, 1fr);
+            gap: 5px;
+            align-items: center;
+            margin-bottom: 10px;
+            background: #090d16;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #334155;
             width: 100%;
         }
-        .matrix-container label { text-align: center; font-weight: bold; font-size: 0.75rem; margin: 0; color: #94a3b8;}
-        .matrix-row-label { font-weight: bold; color: var(--accent-blue); font-size: 0.85rem; white-space: nowrap;}
+        .matrix-container label { text-align: center; font-weight: bold; font-size: 0.72rem; margin: 0; color: #94a3b8;}
+        .matrix-row-label { font-weight: bold; color: var(--accent-blue); font-size: 0.8rem; white-space: nowrap;}
         
         .matrix-container input {
             width: 100%;
-            min-width: 0; /* Critical fix: overrides default input width */
+            min-width: 0;
             text-align: center;
-            padding: 6px 2px;
+            padding: 5px 2px;
             background: #0f172a;
             border: 1px solid #334155;
             border-radius: 4px;
             color: var(--text-main);
-            font-size: 0.85rem;
+            font-size: 0.82rem;
         }
 
-        .slider-container { display: flex; align-items: center; gap: 10px; }
-        .slider-container input[type="range"] { flex-grow: 1; }
-
-        .visualization-card { display: flex; flex-direction: column; gap: 20px; }
+        .visualization-card { display: flex; flex-direction: column; gap: 18px; }
         
         .canvas-container {
             background: #090d16;
             border-radius: 12px;
             border: 1px solid #334155;
-            height: 380px;
+            height: 360px;
             position: relative;
             overflow: hidden;
         }
         canvas { width: 100%; height: 100%; }
 
-        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
-        .result-card { background: #0f172a; padding: 15px; border-radius: 8px; border-right: 4px solid var(--accent-blue); }
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+        .result-card { background: #0f172a; padding: 12px; border-radius: 8px; border-right: 4px solid var(--accent-blue); }
         .result-card.group-a { border-color: var(--accent-blue); }
         .result-card.group-b { border-color: var(--accent-amber); }
         .result-card.group-c { border-color: var(--accent-green); }
         .result-card.settlement { border-color: var(--accent-red); }
         
-        .result-card label { font-size: 0.8rem; color: var(--text-muted); display: block; }
-        .result-card .value { font-size: 1.3rem; font-weight: bold; margin-top: 5px; }
-        .result-card .subtext { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+        .result-card label { font-size: 0.75rem; color: var(--text-muted); display: block; }
+        .result-card .value { font-size: 1.2rem; font-weight: bold; margin-top: 4px; }
+        .result-card .subtext { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
 
-        /* Fixed Steps Log Section */
+        /* Step Log Box */
         .steps-log {
             background: #090d16;
-            padding: 20px;
+            padding: 16px;
             border-radius: 8px;
             border: 1px solid #334155;
             font-family: 'Courier New', Courier, monospace;
-            font-size: 0.88rem;
-            line-height: 1.6;
+            font-size: 0.84rem;
+            line-height: 1.5;
             color: #cbd5e1;
             overflow-x: auto;
-            white-space: pre-wrap; /* Prevents text overflow */
+            white-space: pre-wrap;
             word-break: break-word;
             direction: ltr;
             text-align: left;
             width: 100%;
         }
-        .steps-title { text-align: right; direction: rtl; font-weight: bold; margin-bottom: 12px; color: var(--accent-amber); border-bottom: 1px dashed #334155; padding-bottom: 5px; font-family: 'Segoe UI', sans-serif;}
+        .steps-title { text-align: right; direction: rtl; font-weight: bold; margin-bottom: 10px; color: var(--accent-amber); border-bottom: 1px dashed #334155; padding-bottom: 5px; font-family: 'Segoe UI', sans-serif;}
         .step-highlight { color: var(--accent-green); font-weight: bold; }
         .step-equation { color: var(--accent-blue); margin-left: 15px; }
 
         .btn {
             background: var(--accent-blue); color: white; border: none;
-            padding: 12px 20px; border-radius: 6px; cursor: pointer;
-            font-weight: bold; width: 100%; margin-top: 10px; transition: 0.2s;
+            padding: 10px 18px; border-radius: 6px; cursor: pointer;
+            font-weight: bold; width: 100%; margin-top: 8px; transition: 0.2s;
         }
         .btn:hover { opacity: 0.9; }
 
@@ -186,342 +201,551 @@
 <div class="container">
     <header>
         <div>
-            <h1>نظام حساب هبوط مجاميع الركائز (محاكاة بالزمن الحقيقي)</h1>
-            <p>تفاعل فوري بين المدخلات، المخطط الهيكلي، والمصفوفات الرياضية</p>
+            <h1>نظام التحليل المتقدم لهبوط مجاميع الركائز للخزانات</h1>
+            <p>تحكم فردي بمناسيب الخزانات، الخواص الجيوتكنيكية، ومعايرة فحوصات الموقع (Format Sheet)</p>
         </div>
         <div id="statusBadge" class="status-badge status-safe">
-            ● الوضع آمن
+            ● الوضع آمن (SAFE)
         </div>
     </header>
 
     <!-- Sidebar Inputs -->
     <div class="sidebar">
+        
+        <!-- Independent Tanks & Load Setup -->
         <div class="panel">
-            <h2>1. مدخلات الأحمال والركائز</h2>
-            <div class="form-group">
-                <label>الحمل الساكن (Static Load) - kN</label>
-                <input type="number" id="qStatic" value="9211" oninput="calculate()">
-            </div>
-            <div class="form-group">
-                <label>الحمل الديناميكي الأقصى - kN</label>
-                <input type="number" id="qDynamic" value="62407" oninput="calculate()">
-            </div>
-            <div class="form-group">
-                <label>نسبة الامتلاء الحالية (%)</label>
-                <div class="slider-container">
-                    <input type="range" id="fillRatio" min="0" max="100" value="100" oninput="calculate()">
-                    <span id="fillVal" style="width: 45px; text-align: left; direction: ltr;">100%</span>
+            <h2>1. إدارة مناسيب الخزانات والأحمال</h2>
+            <div class="grid-3">
+                <div class="form-group">
+                    <label>الارتفاع الأقصى h (m)</label>
+                    <input type="number" id="hFluid" value="25" oninput="calculate()">
+                </div>
+                <div class="form-group">
+                    <label>الحمل الثابت (kN)</label>
+                    <input type="number" id="qStatic" value="9211" oninput="calculate()">
+                </div>
+                <div class="form-group">
+                    <label>حمل السائل للخزان الواحد</label>
+                    <input type="number" id="qLivePerTank" value="15600" title="الحمل الأقصى للخزان الواحد عند امتلائه 100%" oninput="calculate()">
                 </div>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+            
+            <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block;">نسبة الإملاء الفردية لكل خزان (%)</label>
+            <div class="tanks-grid">
+                <div class="tank-control">
+                    <label>خزان T-101</label>
+                    <div class="slider-row">
+                        <input type="range" id="fillT1" min="0" max="100" value="100" oninput="calculate()">
+                        <span class="slider-val" id="valT1">100%</span>
+                    </div>
+                </div>
+                <div class="tank-control">
+                    <label>خزان T-102</label>
+                    <div class="slider-row">
+                        <input type="range" id="fillT2" min="0" max="100" value="0" oninput="calculate()">
+                        <span class="slider-val" id="valT2">0%</span>
+                    </div>
+                </div>
+                <div class="tank-control">
+                    <label>خزان T-103</label>
+                    <div class="slider-row">
+                        <input type="range" id="fillT3" min="0" max="100" value="0" oninput="calculate()">
+                        <span class="slider-val" id="valT3">0%</span>
+                    </div>
+                </div>
+                <div class="tank-control">
+                    <label>خزان T-104</label>
+                    <div class="slider-row">
+                        <input type="range" id="fillT4" min="0" max="100" value="0" oninput="calculate()">
+                        <span class="slider-val" id="valT4">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pile Groups & Representative Piles -->
+        <div class="panel">
+            <h2>2. تقسيم المجاميع والركائز الممثلة</h2>
+            <div class="grid-3">
                 <div class="form-group">
-                    <label>ركائز (A)</label>
+                    <label>مجموعة A (عدد)</label>
                     <input type="number" id="nA" value="28" oninput="calculate()">
                 </div>
                 <div class="form-group">
-                    <label>ركائز (B)</label>
+                    <label>مجموعة B (عدد)</label>
                     <input type="number" id="nB" value="16" oninput="calculate()">
                 </div>
                 <div class="form-group">
-                    <label>ركائز (C)</label>
+                    <label>مجموعة C (عدد)</label>
                     <input type="number" id="nC" value="16" oninput="calculate()">
+                </div>
+            </div>
+            <div class="grid-3">
+                <div class="form-group">
+                    <label>ركيزة ممثلة (A)</label>
+                    <input type="number" id="repA" value="1" oninput="calculate()" title="توثيقي فقط — رقم الركيزة الممثلة المستخدم عند استخراج مصفوفة α يدويًا من الـ Settlement.docx. لا يدخل في حسابات calculate().">
+                </div>
+                <div class="form-group">
+                    <label>ركيزة ممثلة (B)</label>
+                    <input type="number" id="repB" value="18" oninput="calculate()" title="توثيقي فقط — لا يدخل في حسابات calculate().">
+                </div>
+                <div class="form-group">
+                    <label>ركيزة ممثلة (C)</label>
+                    <input type="number" id="repC" value="38" oninput="calculate()" title="توثيقي فقط — لا يدخل في حسابات calculate().">
                 </div>
             </div>
         </div>
 
+        <!-- Matrix Coefficients (k, S/d, alpha) -->
         <div class="panel">
-            <h2>2. معاملات مصفوفة التأثير (Σα)</h2>
+            <h2>3. مصفوفة معاملات التفاعل (Σα)</h2>
+            <div class="grid-3" style="margin-bottom: 8px;">
+                <div class="form-group">
+                    <label>معامل التربة (k) — لاختيار الـ figure فقط</label>
+                    <input type="number" id="kFactor" value="18" oninput="calculate()" title="توثيقي فقط: يُستخدم مع S/d و L/d لاختيار منحني التداخل المناسب من الـ database. لا يدخل في معادلة الحل — الجساءة الفعلية (k=1/Ƥ1) تُشتق من فحص PLT في القسم 4.">
+                </div>
+                <div class="form-group">
+                    <label>قطر الركيزة d (m)</label>
+                    <input type="number" id="pileD" value="0.6" oninput="calculate()">
+                </div>
+                <div class="form-group">
+                    <label>التباعد S/d</label>
+                    <input type="number" id="sdRatio" value="4.0" oninput="calculate()">
+                </div>
+            </div>
+            <div class="grid-3" style="margin-bottom: 8px;">
+                <div class="form-group">
+                    <label>طول الركيزة L (m)</label>
+                    <input type="number" id="pileL" value="24" oninput="calculate()">
+                </div>
+                <div class="form-group">
+                    <label>L/d (يحدد نوع الـ figure)</label>
+                    <input type="text" id="ldRatio" value="" readonly style="opacity:0.75;">
+                </div>
+                <div class="form-group">
+                    <label>معامل تحويل الهبوط الى mm</label>
+                    <input type="number" id="unitFactor" value="1" oninput="calculate()" title="اجعلها 1000 اذا كانت k بوحدات تعطي الهبوط بالمتر">
+                </div>
+            </div>
+            <p style="font-size:0.72rem;color:var(--text-muted);margin:-4px 0 10px;">
+                استخدم k و S/d و L/d اعلاه للدخول على منحني التداخل (interaction curves) المناسب لنوع
+                التربة/الركيزة من الـ database واستخرج α لكل زوج ركائز، ثم ادخل القيم يدويًا في المصفوفة ادناه.
+            </p>
+            
+            <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block;">معاملات التداخل الديناميكية (α)</label>
             <div class="matrix-container">
-                <div></div> <label>× PA</label> <label>× PB</label> <label>× PC</label>
+                <div></div> <label>Grp A</label> <label>Grp B</label> <label>Grp C</label>
                 
-                <div class="matrix-row-label">S_A/ρ =</div>
-                <input type="number" id="cAA" value="6.655" step="0.001" oninput="calculate()">
-                <input type="number" id="cAB" value="4.056" step="0.001" oninput="calculate()">
-                <input type="number" id="cAC" value="2.550" step="0.001" oninput="calculate()">
+                <div class="matrix-row-label">Pile A</div>
+                <input type="number" step="0.001" id="a_aa" value="6.655" oninput="calculate()">
+                <input type="number" step="0.001" id="a_ab" value="4.056" oninput="calculate()">
+                <input type="number" step="0.001" id="a_ac" value="2.55" oninput="calculate()">
                 
-                <div class="matrix-row-label">S_B/ρ =</div>
-                <input type="number" id="cBA" value="6.215" step="0.001" oninput="calculate()">
-                <input type="number" id="cBB" value="5.430" step="0.001" oninput="calculate()">
-                <input type="number" id="cBC" value="3.228" step="0.001" oninput="calculate()">
+                <div class="matrix-row-label">Pile B</div>
+                <input type="number" step="0.001" id="a_ba" value="6.215" oninput="calculate()">
+                <input type="number" step="0.001" id="a_bb" value="5.43" oninput="calculate()">
+                <input type="number" step="0.001" id="a_bc" value="3.228" oninput="calculate()">
                 
-                <div class="matrix-row-label">S_C/ρ =</div>
-                <input type="number" id="cCA" value="5.684" step="0.001" oninput="calculate()">
-                <input type="number" id="cCB" value="3.670" step="0.001" oninput="calculate()">
-                <input type="number" id="cCC" value="5.220" step="0.001" oninput="calculate()">
+                <div class="matrix-row-label">Pile C</div>
+                <input type="number" step="0.001" id="a_ca" value="5.684" oninput="calculate()">
+                <input type="number" step="0.001" id="a_cb" value="3.67" oninput="calculate()">
+                <input type="number" step="0.001" id="a_cc" value="5.22" oninput="calculate()">
             </div>
         </div>
 
+        <!-- Pile Load Test Calibration & Monitoring Comparison -->
         <div class="panel">
-            <h2>3. معايير الفحص الموقعي</h2>
-            <div class="form-group">
-                <label>معامل هبوط الركيزة ρ (mm/kN)</label>
-                <input type="number" id="rho" value="0.0054" step="0.0001" oninput="calculate()">
+            <h2>4. معايرة فحص التحميل الحقلي (PLT) ومقارنة ورقة المراقبة</h2>
+            <div class="grid-3">
+                <div class="form-group">
+                    <label>وحدة الهبوط من فحص الموقع (mm/kN)</label>
+                    <input type="number" step="0.0001" id="pltUnitSettlement" value="0.0054" oninput="calculate()">
+                </div>
+                <div class="form-group">
+                    <label>عدد الركائز الممثلة بالفحص</label>
+                    <input type="number" id="pltRepPiles" value="7" oninput="calculate()" title="القاسم المستخدم لاستخراج Ƥ من مجموع الهبوط">
+                </div>
+                <div class="form-group">
+                    <label>الحد المسموح (Format Sheet, mm)</label>
+                    <input type="number" step="0.01" id="monitorLimit" value="0.25" oninput="calculate()">
+                </div>
             </div>
-            <div class="form-group">
-                <label>هبوط الركيزة المفحوصة (mm)</label>
-                <input type="number" id="testSettlement" value="7" oninput="calculate()">
-            </div>
-            <div class="form-group">
-                <label>حد الهبوط المسموح S_max (mm)</label>
-                <input type="number" id="sMax" value="5" oninput="calculate()">
-            </div>
-            <button class="btn" onclick="window.print()">طباعة التقرير / PDF</button>
         </div>
+
+        <button class="btn" onclick="calculate()">تحديث الحسابات التشغيلية</button>
     </div>
 
-    <!-- Main Visual & Output Area -->
+    <!-- Main Output Area -->
     <div class="visualization-card">
         
-        <!-- Live Structural Canvas -->
-        <div class="panel canvas-container">
-            <canvas id="structuralCanvas"></canvas>
-        </div>
-
-        <!-- Results Summary Cards -->
+        <!-- Results Grid -->
         <div class="results-grid">
+            <div class="result-card">
+                <label>الحمل الكلي للأساس (Q_total)</label>
+                <div class="value" id="resQTotal" style="color: white;">0 kN</div>
+                <div class="subtext">الثابت + الحي التراكمي</div>
+            </div>
             <div class="result-card group-a">
-                <label>حمل الركيزة (P_A)</label>
-                <div class="value" id="valPA">0 kN</div>
-                <div class="subtext" id="totalPA">الإجمالي: 0 kN</div>
+                <label>حمل ركيزة Group A</label>
+                <div class="value" id="resPa" style="color: var(--accent-blue);">0 kN</div>
             </div>
             <div class="result-card group-b">
-                <label>حمل الركيزة (P_B)</label>
-                <div class="value" id="valPB">0 kN</div>
-                <div class="subtext" id="totalPB">الإجمالي: 0 kN</div>
+                <label>حمل ركيزة Group B</label>
+                <div class="value" id="resPb" style="color: var(--accent-amber);">0 kN</div>
             </div>
             <div class="result-card group-c">
-                <label>حمل الركيزة (P_C)</label>
-                <div class="value" id="valPC">0 kN</div>
-                <div class="subtext" id="totalPC">الإجمالي: 0 kN</div>
+                <label>حمل ركيزة Group C</label>
+                <div class="value" id="resPc" style="color: var(--accent-green);">0 kN</div>
             </div>
             <div class="result-card settlement">
-                <label>الهبوط الفعلي النهائي (S)</label>
-                <div class="value" id="valSFinal" style="color: var(--accent-red)">0 mm</div>
-                <div class="subtext" id="valTotalQ">الحمل الكلي Q: 0 kN</div>
+                <label>هبوط الأساس المحسوب (Ƥ)</label>
+                <div class="value" id="resSettlement" style="color: var(--accent-red);">0 mm</div>
+            </div>
+            <div class="result-card settlement">
+                <label>القيمة المقارنة بورقة المراقبة</label>
+                <div class="value" id="resMonitor" style="color: var(--accent-red);">0 mm</div>
+                <div class="subtext" id="resMonitorNote">—</div>
             </div>
         </div>
 
-        <!-- Live Step-by-Step Mathematical Log -->
-        <div class="steps-log" id="stepsLog">
-            <div class="steps-title">خطوات الحل التفصيلية بناءً على المدخلات</div>
+        <!-- Canvas -->
+        <div class="panel" style="padding: 10px; margin-bottom: 0;">
+            <div class="canvas-container">
+                <canvas id="tankCanvas"></canvas>
+            </div>
         </div>
 
+        <!-- Math Steps Log -->
+        <div class="steps-log">
+            <div class="steps-title">المعادلات والخطوات التفصيلية (Math Log)</div>
+            <div id="logContent"></div>
+        </div>
     </div>
 </div>
 
 <script>
-    // Matrix Solver (3x3 Cramer's Rule)
-    function solve3x3(A, B) {
-        function det(m) {
-            return m[0][0]*(m[1][1]*m[2][2] - m[1][2]*m[2][1]) -
-                   m[0][1]*(m[1][0]*m[2][2] - m[1][2]*m[2][0]) +
-                   m[0][2]*(m[1][0]*m[2][1] - m[1][1]*m[2][0]);
+    const canvas = document.getElementById('tankCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+
+    function resizeCanvas() {
+        const container = canvas.parentElement;
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+        width = canvas.width;
+        height = canvas.height;
+    }
+    
+    window.addEventListener('resize', () => {
+        resizeCanvas();
+        calculate();
+    });
+
+    function drawStructure(fillRatios, maxSettlement) {
+        ctx.clearRect(0, 0, width, height);
+
+        const groundY = height * 0.7;
+        const raftH = 20;
+        const raftW = width * 0.85;
+        const raftX = (width - raftW) / 2;
+
+        // Draw Soil / Ground
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(0, groundY, width, height - groundY);
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, groundY);
+        ctx.lineTo(width, groundY);
+        ctx.stroke();
+
+        // Draw Piles — symmetric C-B-A-B-C arrangement, matching the site layout
+        // figure: A (center, highest load) flanked by B (mid), flanked by C (edge).
+        const pileW = 12;
+        const pileH = height * 0.25;
+        const groupOrder = ['C','C','B','B','A','A','A','B','B','C','C'];
+        const pileSpacing = raftW / (groupOrder.length + 1);
+        const groupColor = { A: '#3b82f6', B: '#f59e0b', C: '#10b981' };
+
+        groupOrder.forEach((grp, idx) => {
+            const i = idx + 1;
+            const px = raftX + (i * pileSpacing) - (pileW/2);
+
+            ctx.fillStyle = groupColor[grp];
+            ctx.fillRect(px, groundY, pileW, pileH);
+
+            // Pile cap/connection
+            ctx.fillStyle = '#64748b';
+            ctx.fillRect(px - 4, groundY, pileW + 8, 8);
+        });
+
+        // Draw Deflected Raft
+        ctx.beginPath();
+        ctx.moveTo(raftX, groundY);
+        // Exaggerated curve for settlement
+        const settleScale = Math.min(maxSettlement * 2, 25); // cap visual deflection
+        ctx.quadraticCurveTo(width/2, groundY + settleScale, raftX + raftW, groundY);
+        ctx.lineTo(raftX + raftW, groundY - raftH);
+        ctx.quadraticCurveTo(width/2, (groundY - raftH) + settleScale, raftX, groundY - raftH);
+        ctx.closePath();
+        ctx.fillStyle = '#475569';
+        ctx.fill();
+        ctx.strokeStyle = '#94a3b8';
+        ctx.stroke();
+
+        // Draw 4 Tanks individually
+        const numTanks = 4;
+        const tankW = raftW / 5;
+        const gap = (raftW - (numTanks * tankW)) / (numTanks + 1);
+        const tankH = height * 0.45;
+        const startTankX = raftX + gap;
+
+        for (let t = 0; t < numTanks; t++) {
+            const tx = startTankX + t * (tankW + gap);
+            const ty = (groundY - raftH) - tankH;
+            
+            // Tank Body
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(tx, ty, tankW, tankH);
+            ctx.strokeStyle = '#64748b';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(tx, ty, tankW, tankH);
+
+            // Independent Fluid Fill
+            const ratio = fillRatios[t];
+            if (ratio > 0) {
+                const fillH = (tankH - 4) * ratio;
+                ctx.fillStyle = 'rgba(59, 130, 246, 0.4)'; // Water blue
+                ctx.fillRect(tx + 2, ty + (tankH - fillH - 2), tankW - 4, fillH);
+            }
+
+            // Tank label
+            ctx.fillStyle = '#cbd5e1';
+            ctx.font = '12px Tahoma';
+            ctx.textAlign = 'center';
+            ctx.fillText(`T-${101+t}`, tx + tankW/2, ty - 10);
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillText(`${(ratio*100).toFixed(0)}%`, tx + tankW/2, ty + tankH/2);
         }
-        let D = det(A);
-        if (Math.abs(D) < 1e-9) return [0, 0, 0];
 
-        let A1 = A.map((row, i) => [B[i], row[1], row[2]]);
-        let A2 = A.map((row, i) => [row[0], B[i], row[2]]);
-        let A3 = A.map((row, i) => [row[0], row[1], B[i]]);
+        // Labels for piles — centered under each contiguous cluster (C, B, A, B, C)
+        ctx.font = '12px Tahoma';
+        ctx.textAlign = 'center';
+        let runStart = 0;
+        for (let i = 1; i <= groupOrder.length; i++) {
+            if (i === groupOrder.length || groupOrder[i] !== groupOrder[runStart]) {
+                const grp = groupOrder[runStart];
+                const centerIdx = (runStart + i - 1) / 2 + 1; // 1-based pile index at cluster center
+                const labelX = raftX + centerIdx * pileSpacing;
+                const groupNoun = grp === 'A' ? 'Grp A (Center)' : grp === 'B' ? 'Grp B (Mid)' : 'Grp C (Edge)';
+                ctx.fillStyle = groupColor[grp];
+                ctx.fillText(groupNoun, labelX, groundY + pileH + 15);
+                runStart = i;
+            }
+        }
+    }
 
-        return [det(A1)/D, det(A2)/D, det(A3)/D];
+    // Solves A·x = b for a square matrix A using Gaussian elimination with partial pivoting.
+    function solveLinearSystem(A, b) {
+        const n = A.length;
+        const M = A.map((row, i) => [...row, b[i]]);
+
+        for (let col = 0; col < n; col++) {
+            // Partial pivot
+            let pivotRow = col;
+            for (let r = col + 1; r < n; r++) {
+                if (Math.abs(M[r][col]) > Math.abs(M[pivotRow][col])) pivotRow = r;
+            }
+            if (Math.abs(M[pivotRow][col]) < 1e-12) {
+                throw new Error('النظام غير قابل للحل (مصفوفة α غير صالحة / قيم صفرية)');
+            }
+            [M[col], M[pivotRow]] = [M[pivotRow], M[col]];
+
+            for (let r = 0; r < n; r++) {
+                if (r === col) continue;
+                const factor = M[r][col] / M[col][col];
+                for (let c = col; c <= n; c++) {
+                    M[r][c] -= factor * M[col][c];
+                }
+            }
+        }
+        return M.map((row, i) => row[n] / row[i]);
     }
 
     function calculate() {
-        // 1. Inputs
+        // Read Fill Percentages
+        const fillT1 = parseFloat(document.getElementById('fillT1').value) / 100;
+        const fillT2 = parseFloat(document.getElementById('fillT2').value) / 100;
+        const fillT3 = parseFloat(document.getElementById('fillT3').value) / 100;
+        const fillT4 = parseFloat(document.getElementById('fillT4').value) / 100;
+
+        // Update Slider Labels
+        document.getElementById('valT1').innerText = Math.round(fillT1 * 100) + '%';
+        document.getElementById('valT2').innerText = Math.round(fillT2 * 100) + '%';
+        document.getElementById('valT3').innerText = Math.round(fillT3 * 100) + '%';
+        document.getElementById('valT4').innerText = Math.round(fillT4 * 100) + '%';
+
+        const fillRatios = [fillT1, fillT2, fillT3, fillT4];
+
+        // Read Loads
+        const hFluid = parseFloat(document.getElementById('hFluid').value) || 25;
         const qStatic = parseFloat(document.getElementById('qStatic').value) || 0;
-        const qDynamic = parseFloat(document.getElementById('qDynamic').value) || 0;
-        const fillRatio = parseFloat(document.getElementById('fillRatio').value) / 100;
-        document.getElementById('fillVal').innerText = Math.round(fillRatio * 100) + '%';
+        const qLivePerTank = parseFloat(document.getElementById('qLivePerTank').value) || 0;
 
-        const nA = parseFloat(document.getElementById('nA').value) || 1;
-        const nB = parseFloat(document.getElementById('nB').value) || 1;
-        const nC = parseFloat(document.getElementById('nC').value) || 1;
+        // Pile Counts
+        const nA = parseInt(document.getElementById('nA').value) || 28;
+        const nB = parseInt(document.getElementById('nB').value) || 16;
+        const nC = parseInt(document.getElementById('nC').value) || 16;
+        
+        // Matrix Alpha
+        const a_aa = parseFloat(document.getElementById('a_aa').value);
+        const a_ab = parseFloat(document.getElementById('a_ab').value);
+        const a_ac = parseFloat(document.getElementById('a_ac').value);
+        
+        const a_ba = parseFloat(document.getElementById('a_ba').value);
+        const a_bb = parseFloat(document.getElementById('a_bb').value);
+        const a_bc = parseFloat(document.getElementById('a_bc').value);
+        
+        const a_ca = parseFloat(document.getElementById('a_ca').value);
+        const a_cb = parseFloat(document.getElementById('a_cb').value);
+        const a_cc = parseFloat(document.getElementById('a_cc').value);
+
+        // K factor (relation between soil type & pile material, from database table)
+        const kFactor = parseFloat(document.getElementById('kFactor').value) || 18;
+        const pileD = parseFloat(document.getElementById('pileD').value) || 0.6;
+        const sdRatio = parseFloat(document.getElementById('sdRatio').value) || 4.0;
+        const pileL = parseFloat(document.getElementById('pileL').value) || 24;
+        const unitFactor = parseFloat(document.getElementById('unitFactor').value) || 1;
+
+        // L/d ratio -> selects which interaction "figure" (chart) to read α from
+        const ldRatio = pileL / pileD;
+        document.getElementById('ldRatio').value = ldRatio.toFixed(1);
+
+        // PLT calibration inputs
+        const pltUnitSettlement = parseFloat(document.getElementById('pltUnitSettlement').value) || 0;
+        const pltRepPiles = parseFloat(document.getElementById('pltRepPiles').value) || 1;
+        const monitorLimit = parseFloat(document.getElementById('monitorLimit').value) || 0;
+
+        // 1. Loads: live load per tank (scaled by fill height/ratio) + static load
+        const hFactor = hFluid / 25;
+        const qLiveT1 = qLivePerTank * hFactor * fillT1;
+        const qLiveT2 = qLivePerTank * hFactor * fillT2;
+        const qLiveT3 = qLivePerTank * hFactor * fillT3;
+        const qLiveT4 = qLivePerTank * hFactor * fillT4;
+
+        const TotalLiveLoad = qLiveT1 + qLiveT2 + qLiveT3 + qLiveT4;
+        const Q_total = qStatic + TotalLiveLoad;
+
+        // 2. Stiffness term: per the governing equation (δk = Ƥ1·Σ(pj·αkj) + Ƥ1·pk),
+        //    the term that converts Σα·P into settlement is 1/Ƥ1, where Ƥ1 is the
+        //    pile-load-test unit settlement (site-measured flexibility) — NOT the
+        //    database k-factor above, which only picks which interaction chart to read.
+        const stiffness = pltUnitSettlement > 0 ? (1 / pltUnitSettlement) : kFactor;
+
+        // 3. Exact 4-equation / 4-unknown system for [Pa, Pb, Pc, S]:
+        //    Equal-settlement condition for each representative pile (A, B, C):
+        //      stiffness·S = Pa·αaa + Pb·αab + Pc·αac
+        //      stiffness·S = Pa·αba + Pb·αbb + Pc·αbc
+        //      stiffness·S = Pa·αca + Pb·αcb + Pc·αcc
+        //    Equilibrium (4th equation):
+        //      nA·Pa + nB·Pb + nC·Pc = Q_total
+        const A_matrix = [
+            [a_aa, a_ab, a_ac, -stiffness],
+            [a_ba, a_bb, a_bc, -stiffness],
+            [a_ca, a_cb, a_cc, -stiffness],
+            [nA,   nB,   nC,   0]
+        ];
+        const b_vector = [0, 0, 0, Q_total];
+
+        let Pa, Pb, Pc, S_calc, solveError = null;
+        try {
+            [Pa, Pb, Pc, S_calc] = solveLinearSystem(A_matrix, b_vector);
+        } catch (e) {
+            solveError = e.message;
+            Pa = Pb = Pc = S_calc = 0;
+        }
+
+        const settlement_mm = S_calc * unitFactor;
+
+        // 4. PLT cross-check: an independent, average-pile-load-basis estimate of settlement,
+        //    shown alongside the solved result for sanity comparison (the PLT value itself
+        //    already drives resSettlement above via `stiffness`, so this is a secondary check,
+        //    not the primary calibration).
         const totalPiles = nA + nB + nC;
-        const Q = qStatic + (qDynamic * fillRatio);
+        const siteExpectedSettlement = pltUnitSettlement * (Q_total / totalPiles); // mm, avg pile load basis
+        // Final per-pile comparator: Ƥ (settlement normalized by rep. test piles) / total pile count
+        const perPileComparator = pltRepPiles > 0 ? (settlement_mm / pltRepPiles) / totalPiles : 0;
 
-        // Matrix coefficients
-        const cAA = parseFloat(document.getElementById('cAA').value) || 0;
-        const cAB = parseFloat(document.getElementById('cAB').value) || 0;
-        const cAC = parseFloat(document.getElementById('cAC').value) || 0;
-        
-        const cBA = parseFloat(document.getElementById('cBA').value) || 0;
-        const cBB = parseFloat(document.getElementById('cBB').value) || 0;
-        const cBC = parseFloat(document.getElementById('cBC').value) || 0;
-        
-        const cCA = parseFloat(document.getElementById('cCA').value) || 0;
-        const cCB = parseFloat(document.getElementById('cCB').value) || 0;
-        const cCC = parseFloat(document.getElementById('cCC').value) || 0;
+        // Update UI
+        document.getElementById('resQTotal').innerText = Q_total.toFixed(0) + ' kN';
+        document.getElementById('resPa').innerText = Pa.toFixed(1) + ' kN';
+        document.getElementById('resPb').innerText = Pb.toFixed(1) + ' kN';
+        document.getElementById('resPc').innerText = Pc.toFixed(1) + ' kN';
+        document.getElementById('resSettlement').innerText = settlement_mm.toFixed(2) + ' mm';
+        document.getElementById('resMonitor').innerText = perPileComparator.toFixed(3) + ' mm';
+        document.getElementById('resMonitorNote').innerText =
+            monitorLimit > 0 ? `الحد المسموح: ${monitorLimit} mm` : 'أدخل الحد المسموح';
 
-        const rho = parseFloat(document.getElementById('rho').value) || 0;
-        const testSettlement = parseFloat(document.getElementById('testSettlement').value) || 1;
-        const sMax = parseFloat(document.getElementById('sMax').value) || 5;
-
-        // 2. Formulate Linear System
-        const eq1_PA = cAA - cBA, eq1_PB = cAB - cBB, eq1_PC = cAC - cBC;
-        const eq2_PA = cBA - cCA, eq2_PB = cBB - cCB, eq2_PC = cBC - cCC;
-
-        const A = [
-            [eq1_PA, eq1_PB, eq1_PC],
-            [eq2_PA, eq2_PB, eq2_PC],
-            [nA, nB, nC]
-        ];
-        const B = [0, 0, Q];
-
-        // 3. Solve
-        const [PA, PB, PC] = solve3x3(A, B);
-
-        // 4. Settlement Steps
-        const S_initial_rho = (cAA * PA) + (cAB * PB) + (cAC * PC);
-        const S_initial = rho * S_initial_rho;
-        const S_ratio = S_initial / testSettlement;
-        const S_final = S_ratio / totalPiles;
-
-        // 5. Update UI Text
-        document.getElementById('valPA').innerText = PA.toFixed(2) + ' kN';
-        document.getElementById('totalPA').innerText = 'الإجمالي: ' + (PA * nA).toFixed(0) + ' kN';
-        
-        document.getElementById('valPB').innerText = PB.toFixed(2) + ' kN';
-        document.getElementById('totalPB').innerText = 'الإجمالي: ' + (PB * nB).toFixed(0) + ' kN';
-        
-        document.getElementById('valPC').innerText = PC.toFixed(2) + ' kN';
-        document.getElementById('totalPC').innerText = 'الإجمالي: ' + (PC * nC).toFixed(0) + ' kN';
-        
-        document.getElementById('valSFinal').innerText = S_final.toFixed(3) + ' mm';
-        document.getElementById('valTotalQ').innerText = 'الحمل الكلي Q: ' + Q.toFixed(0) + ' kN';
-
-        // Status Badge
-        const statusBadge = document.getElementById('statusBadge');
-        if (S_final <= sMax && S_final >= 0) {
-            statusBadge.className = 'status-badge status-safe';
-            statusBadge.innerHTML = '● الوضع آمن (SAFE)';
+        // Badge Status — driven by the monitoring-sheet comparison, not an arbitrary threshold
+        const badge = document.getElementById('statusBadge');
+        if (solveError) {
+            badge.className = 'status-badge status-danger';
+            badge.innerText = '⚠ خطأ في الحل: ' + solveError;
+        } else if (monitorLimit > 0 && perPileComparator > monitorLimit) {
+            badge.className = 'status-badge status-danger';
+            badge.innerText = '⚠ الوضع حرج (يتجاوز حد ورقة المراقبة)';
         } else {
-            statusBadge.className = 'status-badge status-danger';
-            statusBadge.innerHTML = '⚠️ الوضع خطر (DANGER)';
+            badge.className = 'status-badge status-safe';
+            badge.innerText = '● الوضع آمن (SAFE)';
         }
 
-        // 6. Generate Step Log
-        document.getElementById('stepsLog').innerHTML = `
-            <div class="steps-title">خطوات الحل التفصيلية المباشرة (Live Math Engine)</div>
-            
-            [STEP 1] Total Load: Q = Static + (Dynamic × Fill%)
-            <div class="step-equation">Q = ${qStatic} + (${qDynamic} × ${fillRatio.toFixed(2)}) = <span class="step-highlight">${Q.toFixed(2)} kN</span></div>
-            <br>
-            [STEP 2] Influence Equations
-            <div class="step-equation">S_A/ρ = ${cAA} PA + ${cAB} PB + ${cAC} PC</div>
-            <div class="step-equation">S_B/ρ = ${cBA} PA + ${cBB} PB + ${cBC} PC</div>
-            <div class="step-equation">S_C/ρ = ${cCA} PA + ${cCB} PB + ${cCC} PC</div>
-            <br>
-            [STEP 3] System Matrix (S_A = S_B = S_C) & Equilibrium
-            <div class="step-equation">Eq 1: ${eq1_PA.toFixed(3)} PA + ${eq1_PB.toFixed(3)} PB + ${eq1_PC.toFixed(3)} PC = 0</div>
-            <div class="step-equation">Eq 2: ${eq2_PA.toFixed(3)} PA + ${eq2_PB.toFixed(3)} PB + ${eq2_PC.toFixed(3)} PC = 0</div>
-            <div class="step-equation">Eq 3: ${nA} PA + ${nB} PB + ${nC} PC = ${Q.toFixed(2)}</div>
-            <br>
-            [STEP 4] Matrix Solution Result
-            <div class="step-equation">P_A = <span class="step-highlight">${PA.toFixed(2)} kN</span> | P_B = <span class="step-highlight">${PB.toFixed(2)} kN</span> | P_C = <span class="step-highlight">${PC.toFixed(2)} kN</span></div>
-            <br>
-            [STEP 5] Settlement Calculation & Site Correction
-            <div class="step-equation">S_initial = ${rho} × ${S_initial_rho.toFixed(2)} = ${S_initial.toFixed(2)} mm</div>
-            <div class="step-equation">Ratio = ${S_initial.toFixed(2)} / ${testSettlement} = ${S_ratio.toFixed(2)} mm</div>
-            <div class="step-equation">S_Final = ${S_ratio.toFixed(2)} / ${totalPiles} = <span class="step-highlight">${S_final.toFixed(4)} mm</span></div>
+        // Draw Canvas
+        drawStructure(fillRatios, settlement_mm);
+
+        // Update Log
+        const logHtml = `
+<span class="step-highlight">[STEP 1] Tank Live & Total Load Calculation</span>
+<span class="step-equation">Q_live_i = Tank_Max_Live × (h_actual / 25) × Fill_Ratio</span>
+<span class="step-equation">T-101: ${qLiveT1.toFixed(0)} kN  (${Math.round(fillT1*100)}%)</span>
+<span class="step-equation">T-102: ${qLiveT2.toFixed(0)} kN  (${Math.round(fillT2*100)}%)</span>
+<span class="step-equation">T-103: ${qLiveT3.toFixed(0)} kN  (${Math.round(fillT3*100)}%)</span>
+<span class="step-equation">T-104: ${qLiveT4.toFixed(0)} kN  (${Math.round(fillT4*100)}%)</span>
+<span class="step-equation">Total Live Load = ${TotalLiveLoad.toFixed(0)} kN</span>
+<span class="step-equation">Q_total = Q_static + Q_live = ${qStatic} + ${TotalLiveLoad.toFixed(0)} = ${Q_total.toFixed(0)} kN</span>
+
+<span class="step-highlight">[STEP 2] Interaction Chart Selection (documentation only: k, S/d, L/d → figure → α)</span>
+<span class="step-equation">k (database, chart-selection label only — NOT the solver stiffness) = ${kFactor}</span>
+<span class="step-equation">S/d = ${sdRatio}  |  L/d = ${pileL}/${pileD} = ${ldRatio.toFixed(1)}  →  used to pick the α interaction curve/figure</span>
+<span class="step-equation">α matrix (read from chart, entered manually):</span>
+<span class="step-equation">  Pile A row: αaa=${a_aa} αab=${a_ab} αac=${a_ac}</span>
+<span class="step-equation">  Pile B row: αba=${a_ba} αbb=${a_bb} αbc=${a_bc}</span>
+<span class="step-equation">  Pile C row: αca=${a_ca} αcb=${a_cb} αcc=${a_cc}</span>
+
+<span class="step-highlight">[STEP 3] Solver Stiffness — from PLT, not the database k</span>
+<span class="step-equation">δk = Ƥ1·Σ(pj·αkj) + Ƥ1·pk  →  stiffness = 1/Ƥ1 = 1/${pltUnitSettlement} = ${stiffness.toFixed(2)} kN/mm</span>
+
+<span class="step-highlight">[STEP 4] 4×4 System (3 equal-settlement eqs + 1 equilibrium eq) for [Pa, Pb, Pc, S]</span>
+<span class="step-equation">stiffness·S = Pa·αaa + Pb·αab + Pc·αac</span>
+<span class="step-equation">stiffness·S = Pa·αba + Pb·αbb + Pc·αbc</span>
+<span class="step-equation">stiffness·S = Pa·αca + Pb·αcb + Pc·αcc</span>
+<span class="step-equation">${nA}·Pa + ${nB}·Pb + ${nC}·Pc = ${Q_total.toFixed(0)}  (equilibrium)</span>
+${solveError ? `<span class="step-equation">SOLVE ERROR: ${solveError}</span>` : `
+<span class="step-equation">→ Pa = ${Pa.toFixed(2)} kN  |  Pb = ${Pb.toFixed(2)} kN  |  Pc = ${Pc.toFixed(2)} kN</span>
+<span class="step-equation">→ S (raw, from any equation) = ${S_calc.toFixed(5)}  →  settlement = ${settlement_mm.toFixed(2)} mm</span>`}
+
+<span class="step-highlight">[STEP 5] Pile Load Test (PLT) Cross-Check & Monitoring-Sheet Comparison</span>
+<span class="step-equation">Site test unit settlement (Ƥ1) = ${pltUnitSettlement} mm/kN  →  already used above as 1/Ƥ1 in STEP 3</span>
+<span class="step-equation">Secondary cross-check, avg pile load basis ≈ ${pltUnitSettlement} × (${Q_total.toFixed(0)}/${totalPiles}) = ${siteExpectedSettlement.toFixed(2)} mm</span>
+<span class="step-equation">Ƥ = settlement_mm / rep. test piles = ${settlement_mm.toFixed(2)} / ${pltRepPiles} = ${(settlement_mm/pltRepPiles).toFixed(2)} mm</span>
+<span class="step-equation">Comparator = Ƥ / total piles = ${(settlement_mm/pltRepPiles).toFixed(2)} / ${totalPiles} = ${perPileComparator.toFixed(3)} mm</span>
+<span class="step-equation">Monitoring sheet limit = ${monitorLimit} mm  →  ${monitorLimit > 0 ? (perPileComparator > monitorLimit ? 'EXCEEDS LIMIT' : 'WITHIN LIMIT') : 'no limit set'}</span>
         `;
-
-        // 7. Render Real-Time Canvas Diagram
-        drawStructure(fillRatio, Q, S_final, PA, PB, PC);
+        document.getElementById('logContent').innerHTML = logHtml;
     }
 
-    function drawStructure(fillRatio, Q, S_final, PA, PB, PC) {
-        const canvas = document.getElementById('structuralCanvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = canvas.parentElement.clientWidth;
-        canvas.height = canvas.parentElement.clientHeight;
-
-        const w = canvas.width;
-        const h = canvas.height;
-        ctx.clearRect(0, 0, w, h);
-
-        // 1. Soil Background
-        const soilY = h * 0.52;
-        ctx.fillStyle = '#1c1611';
-        ctx.fillRect(0, soilY, w, h - soilY);
-        ctx.strokeStyle = '#3d3124'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(0, soilY); ctx.lineTo(w, soilY); ctx.stroke();
-
-        // 2. Silo Structure
-        const siloW = w * 0.42, siloH = h * 0.26, siloX = (w - siloW) / 2, siloY = h * 0.12;
-        ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.roundRect(siloX, siloY, siloW, siloH, 10); ctx.fill(); ctx.stroke();
-
-        // Fill level
-        if (fillRatio > 0) {
-            ctx.save(); ctx.beginPath(); ctx.roundRect(siloX + 4, siloY + 4, siloW - 8, siloH - 8, 8); ctx.clip();
-            const currentFillH = (siloH - 8) * fillRatio;
-            ctx.fillStyle = 'rgba(59, 130, 246, 0.4)';
-            ctx.fillRect(siloX + 4, siloY + siloH - 4 - currentFillH, siloW - 8, currentFillH); ctx.restore();
-        }
-
-        ctx.fillStyle = '#ffffff'; ctx.font = 'bold 15px Segoe UI'; ctx.textAlign = 'center';
-        ctx.fillText('المنشأة / الخزان', w / 2, siloY + 30);
-        ctx.font = '12px Segoe UI'; ctx.fillStyle = '#93c5fd';
-        ctx.fillText(`Q = ${Q.toFixed(0)} kN`, w / 2, siloY + 52);
-        ctx.fillText('↓ انتقال الحمل للركائز', w / 2, siloY + 72);
-
-        // 3. Concrete Raft Foundation
-        const raftW = w * 0.72, raftH = 28, raftX = (w - raftW) / 2, raftY = soilY - raftH / 2;
-        ctx.fillStyle = '#d6c5a5'; ctx.strokeStyle = '#b5a382'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.roundRect(raftX, raftY, raftW, raftH, 5); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = '#292524'; ctx.font = 'bold 12px Segoe UI';
-        ctx.fillText('القاعدة الخرسانية (تربط كل الركائز - S متساوي)', w / 2, raftY + 18);
-
-        // 4. Piles Layout Visual Representation
-        const pilesLayout = [
-            { type: 'C', col: '#10b981', load: PC },
-            { type: 'C', col: '#10b981', load: PC },
-            { type: 'B', col: '#f59e0b', load: PB },
-            { type: 'B', col: '#f59e0b', load: PB },
-            { type: 'A', col: '#3b82f6', load: PA },
-            { type: 'A', col: '#3b82f6', load: PA },
-            { type: 'A', col: '#3b82f6', load: PA },
-            { type: 'B', col: '#f59e0b', load: PB },
-            { type: 'B', col: '#f59e0b', load: PB },
-            { type: 'C', col: '#10b981', load: PC },
-            { type: 'C', col: '#10b981', load: PC }
-        ];
-
-        const pileW = 14, pileH = h * 0.28, totalPilesW = raftW * 0.85;
-        const startX = (w - totalPilesW) / 2, step = totalPilesW / (pilesLayout.length - 1);
-
-        pilesLayout.forEach((pile, i) => {
-            const px = startX + i * step - pileW / 2, py = raftY + raftH;
-            ctx.fillStyle = pile.col; ctx.beginPath();
-            ctx.roundRect(px, py, pileW, pileH, [0, 0, 4, 4]); ctx.fill();
-
-            // Draw group label underneath
-            if (i === 1 || i === 3 || i === 5 || i === 7 || i === 9) {
-                ctx.fillStyle = pile.col;
-                ctx.font = 'bold 12px Segoe UI';
-                ctx.fillText(pile.type, px + pileW / 2, py + pileH + 18);
-            }
-        });
-
-        // 5. Dynamic Settlement Arrow
-        const arrowX = raftX + raftW + 20, arrowY1 = raftY;
-        const arrowY2 = raftY + 50; 
-
-        ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3; ctx.setLineDash([4, 4]);
-        ctx.beginPath(); ctx.moveTo(arrowX, arrowY1); ctx.lineTo(arrowX, arrowY2); ctx.stroke(); ctx.setLineDash([]);
-        ctx.fillStyle = '#ef4444'; ctx.beginPath();
-        ctx.moveTo(arrowX - 5, arrowY2 - 8); ctx.lineTo(arrowX + 5, arrowY2 - 8); ctx.lineTo(arrowX, arrowY2 + 2);
-        ctx.closePath(); ctx.fill();
-
-        ctx.font = 'bold 13px Segoe UI'; ctx.fillText('S', arrowX + 15, arrowY1 + 15);
-        ctx.font = '11px Segoe UI'; ctx.fillText('الهبوط', arrowX + 22, arrowY1 + 30);
-        ctx.fillText(`${S_final.toFixed(3)} mm`, arrowX + 28, arrowY1 + 45);
-    }
-
-    window.addEventListener('resize', calculate);
+    // Init
+    resizeCanvas();
     calculate();
 </script>
-
 </body>
 </html>
