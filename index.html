@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام حساب هبوط مجاميع الركائز | Settlement Analysis Tool</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-blue: #3b82f6;
+            --accent-amber: #f59e0b;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --raft-color: #d6c5a5;
+            --soil-color: #2e261f;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 20px;
+        }
+
+        header {
+            grid-column: 1 / -1;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            color: var(--accent-blue);
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-safe {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+
+        .status-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
+        }
+
+        .panel {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+
+        .panel h2 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--text-main);
+            border-bottom: 2px solid #334155;
+            padding-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slider-container input[type="range"] {
+            flex-grow: 1;
+        }
+
+        /* Visualization Area */
+        .visualization-card {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .canvas-container {
+            background: #090d16;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            height: 420px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Results Grid */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .result-card {
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 8px;
+            border-right: 4px solid var(--accent-blue);
+        }
+
+        .result-card.group-a { border-color: var(--accent-blue); }
+        .result-card.group-b { border-color: var(--accent-amber); }
+        .result-card.group-c { border-color: var(--accent-green); }
+        .result-card.settlement { border-color: var(--accent-red); }
+
+        .result-card label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: block;
+        }
+
+        .result-card .value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .result-card .subtext {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <h1>نظام حساب هبوط مجاميع الركائز (Uniform Settlement System)</h1>
+            <p>توزيع أحمال المنشأة تحت شرط الهبوط المتساوي للركائز الصلبة</p>
+        </div>
+        <div id="statusBadge" class="status-badge status-safe">
+            ● الوضع آمن (SAFE)
+        </div>
+    </header>
+
+    <!-- Sidebar Inputs -->
+    <div class="panel">
+        <h2>مدخلات التحميل والتربة</h2>
+        
+        <div class="form-group">
+            <label>الحمل الساكن (Static Load) - kN</label>
+            <input type="number" id="qStatic" value="9211" oninput="calculate()">
+        </div>
+
+        <div class="form-group">
+            <label>الحمل الديناميكي الأقصى (Max Dynamic) - kN</label>
+            <input type="number" id="qDynamic" value="62407" oninput="calculate()">
+        </div>
+
+        <div class="form-group">
+            <label>نسبة الامتلاء / التحميل الحالي (%)</label>
+            <div class="slider-container">
+                <input type="range" id="fillRatio" min="0" max="100" value="100" oninput="calculate()">
+                <span id="fillVal" style="width: 45px; text-align: left;">100%</span>
+            </div>
+        </div>
+
+        <h2>توزيع مجاميع الركائز</h2>
+        <div class="form-group">
+            <label>عدد ركائز المجموعة A (داخلي)</label>
+            <input type="number" id="nA" value="28" oninput="calculate()">
+        </div>
+        <div class="form-group">
+            <label>عدد ركائز المجموعة B (وسط)</label>
+            <input type="number" id="nB" value="16" oninput="calculate()">
+        </div>
+        <div class="form-group">
+            <label>عدد ركائز المجموعة C (خارجي)</label>
+            <input type="number" id="nC" value="16" oninput="calculate()">
+        </div>
+
+        <h2>معايير الأمان والتجربة</h2>
+        <div class="form-group">
+            <label>معامل هبوط الركيزة المنفردة ρ (mm/kN)</label>
+            <input type="number" id="rho" value="0.0054" step="0.0001" oninput="calculate()">
+        </div>
+        <div class="form-group">
+            <label>حد الهبوط المسموح بها S_max (mm)</label>
+            <input type="number" id="sMax" value="100" oninput="calculate()">
+        </div>
+
+        <button class="btn" onclick="window.print()">طباعة التقرير / PDF</button>
+    </div>
+
+    <!-- Main Visual & Output Area -->
+    <div class="visualization-card">
+        <div class="panel canvas-container">
+            <canvas id="structuralCanvas"></canvas>
+        </div>
+
+        <div class="results-grid">
+            <div class="result-card group-a">
+                <label>حمل الركيزة الواحدة P_A</label>
+                <div class="value" id="valPA">0 kN</div>
+                <div class="subtext" id="totalPA">مجموع المجموعة: 0 kN</div>
+            </div>
+            <div class="result-card group-b">
+                <label>حمل الركيزة الواحدة P_B</label>
+                <div class="value" id="valPB">0 kN</div>
+                <div class="subtext" id="totalPB">مجموع المجموعة: 0 kN</div>
+            </div>
+            <div class="result-card group-c">
+                <label>حمل الركيزة الواحدة P_C</label>
+                <div class="value" id="valPC">0 kN</div>
+                <div class="subtext" id="totalPC">مجموع المجموعة: 0 kN</div>
+            </div>
+            <div class="result-card settlement">
+                <label>الهبوط الكلي المتساوي (S)</label>
+                <div class="value" id="valS" style="color: var(--accent-red)">0 mm</div>
+                <div class="subtext" id="valQ">الحمل الكلي Q: 0 kN</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Influence Factors Coefficients based on matrix system
+    // SA/rho1 = 6.655 PA + 4.056 PB + 2.55 PC
+    // SB/rho1 = 6.215 PA + 5.430 PB + 3.228 PC
+    // SC/rho1 = 5.684 PA + 3.670 PB + 5.220 PC
+
+    function solve3x3(A, B) {
+        // Cramer's Rule for System of 3 linear equations
+        function det(m) {
+            return m[0][0]*(m[1][1]*m[2][2] - m[1][2]*m[2][1]) -
+                   m[0][1]*(m[1][0]*m[2][2] - m[1][2]*m[2][0]) +
+                   m[0][2]*(m[1][0]*m[2][1] - m[1][1]*m[2][0]);
+        }
+
+        let D = det(A);
+        if (Math.abs(D) < 1e-9) return [0, 0, 0];
+
+        let A1 = A.map((row, i) => [B[i], row[1], row[2]]);
+        let A2 = A.map((row, i) => [row[0], B[i], row[2]]);
+        let A3 = A.map((row, i) => [row[0], row[1], B[i]]);
+
+        return [det(A1)/D, det(A2)/D, det(A3)/D];
+    }
+
+    function calculate() {
+        // Get Inputs
+        const qStatic = parseFloat(document.getElementById('qStatic').value) || 0;
+        const qDynamic = parseFloat(document.getElementById('qDynamic').value) || 0;
+        const fillRatio = parseFloat(document.getElementById('fillRatio').value) / 100;
+        document.getElementById('fillVal').innerText = Math.round(fillRatio * 100) + '%';
+
+        const nA = parseFloat(document.getElementById('nA').value) || 1;
+        const nB = parseFloat(document.getElementById('nB').value) || 1;
+        const nC = parseFloat(document.getElementById('nC').value) || 1;
+
+        const rho = parseFloat(document.getElementById('rho').value) || 0.0054;
+        const sMax = parseFloat(document.getElementById('sMax').value) || 100;
+
+        // Total load Q
+        const Q = qStatic + (qDynamic * fillRatio);
+
+        // System Equations derived from S_A = S_B and S_B = S_C
+        // Eq 1: (6.655 - 6.215)PA + (4.056 - 5.430)PB + (2.550 - 3.228)PC = 0
+        // Eq 2: (6.215 - 5.684)PA + (5.430 - 3.670)PB + (3.228 - 5.220)PC = 0
+        // Eq 3: nA*PA + nB*PB + nC*PC = Q
+
+        const A = [
+            [6.655 - 6.215, 4.056 - 5.430, 2.550 - 3.228],
+            [6.215 - 5.684, 5.430 - 3.670, 3.228 - 5.220],
+            [nA, nB, nC]
+        ];
+        const B = [0, 0, Q];
+
+        const [PA, PB, PC] = solve3x3(A, B);
+
+        // Settlement Calculation (S)
+        const S = rho * (6.655 * PA + 4.056 * PB + 2.550 * PC);
+
+        // Update UI Text
+        document.getElementById('valPA').innerText = PA.toFixed(2) + ' kN';
+        document.getElementById('totalPA').innerText = 'مجموع المجموعة: ' + (PA * nA).toFixed(0) + ' kN';
+
+        document.getElementById('valPB').innerText = PB.toFixed(2) + ' kN';
+        document.getElementById('totalPB').innerText = 'مجموع المجموعة: ' + (PB * nB).toFixed(0) + ' kN';
+
+        document.getElementById('valPC').innerText = PC.toFixed(2) + ' kN';
+        document.getElementById('totalPC').innerText = 'مجموع المجموعة: ' + (PC * nC).toFixed(0) + ' kN';
+
+        document.getElementById('valS').innerText = S.toFixed(2) + ' mm';
+        document.getElementById('valQ').innerText = 'الحمل الكلي Q: ' + Q.toFixed(0) + ' kN';
+
+        // Check Safety Threshold
+        const statusBadge = document.getElementById('statusBadge');
+        if (S <= sMax && S > 0) {
+            statusBadge.className = 'status-badge status-safe';
+            statusBadge.innerHTML = '● الوضع آمن (SAFE)';
+        } else {
+            statusBadge.className = 'status-badge status-danger';
+            statusBadge.innerHTML = '⚠️ الوضع خطر (DANGEROUS)';
+        }
+
+        // Draw Visualization
+        drawStructure(fillRatio, Q, S, PA, PB, PC);
+    }
+
+    function drawStructure(fillRatio, Q, S, PA, PB, PC) {
+        const canvas = document.getElementById('structuralCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set dimensions
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+
+        const w = canvas.width;
+        const h = canvas.height;
+
+        ctx.clearRect(0, 0, w, h);
+
+        // Colors
+        const colA = '#3b82f6';
+        const colB = '#f59e0b';
+        const colC = '#10b981';
+
+        // 1. Soil Background (Bottom Section)
+        const soilY = h * 0.55;
+        ctx.fillStyle = '#221c16';
+        ctx.fillRect(0, soilY, w, h - soilY);
+
+        // Soil Texture/Line
+        ctx.strokeStyle = '#3d3124';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, soilY);
+        ctx.lineTo(w, soilY);
+        ctx.stroke();
+
+        // 2. Silo Structure (Top Section)
+        const siloW = w * 0.45;
+        const siloH = h * 0.28;
+        const siloX = (w - siloW) / 2;
+        const siloY = h * 0.15;
+
+        // Container Box
+        ctx.fillStyle = '#1e3a8a';
+        ctx.strokeStyle = '#60a5fa';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(siloX, siloY, siloW, siloH, 12);
+        ctx.fill();
+        ctx.stroke();
+
+        // Fill Level Graphic inside Silo
+        if (fillRatio > 0) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.roundRect(siloX + 4, siloY + 4, siloW - 8, siloH - 8, 8);
+            ctx.clip();
+
+            const currentFillH = (siloH - 8) * fillRatio;
+            ctx.fillStyle = 'rgba(96, 165, 250, 0.35)';
+            ctx.fillRect(siloX + 4, siloY + siloH - 4 - currentFillH, siloW - 8, currentFillH);
+            ctx.restore();
+        }
+
+        // Text inside Silo
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 16px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.fillText('المنشأة / الخزان', w / 2, siloY + 35);
+
+        ctx.font = '13px Segoe UI';
+        ctx.fillStyle = '#93c5fd';
+        ctx.fillText(`حمل ساكن + ديناميكي = Q (${Q.toFixed(0)} kN)`, w / 2, siloY + 60);
+        ctx.fillText('↓ تنتقل إلى الركائز', w / 2, siloY + 82);
+
+        // 3. Rigid Concrete Raft Foundation
+        const raftW = w * 0.75;
+        const raftH = 30;
+        const raftX = (w - raftW) / 2;
+        const raftY = soilY - raftH / 2;
+
+        ctx.fillStyle = '#d6c5a5';
+        ctx.strokeStyle = '#b5a382';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(raftX, raftY, raftW, raftH, 6);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#292524';
+        ctx.font = 'bold 13px Segoe UI';
+        ctx.fillText('القاعدة الخرسانية (تربط كل الركائز)', w / 2, raftY + 20);
+
+        // 4. Piles Layout Symmetrical Representation [C, C, B, B, A, A, A, B, B, C, C]
+        const pilesLayout = [
+            { type: 'C', col: colC, load: PC },
+            { type: 'C', col: colC, load: PC },
+            { type: 'B', col: colB, load: PB },
+            { type: 'B', col: colB, load: PB },
+            { type: 'A', col: colA, load: PA },
+            { type: 'A', col: colA, load: PA },
+            { type: 'A', col: colA, load: PA },
+            { type: 'B', col: colB, load: PB },
+            { type: 'B', col: colB, load: PB },
+            { type: 'C', col: colC, load: PC },
+            { type: 'C', col: colC, load: PC }
+        ];
+
+        const pileW = 16;
+        const pileH = h * 0.28;
+        const totalPilesW = raftW * 0.85;
+        const startX = (w - totalPilesW) / 2;
+        const step = totalPilesW / (pilesLayout.length - 1);
+
+        pilesLayout.forEach((pile, i) => {
+            const px = startX + i * step - pileW / 2;
+            const py = raftY + raftH;
+
+            ctx.fillStyle = pile.col;
+            ctx.beginPath();
+            ctx.roundRect(px, py, pileW, pileH, [0, 0, 4, 4]);
+            ctx.fill();
+
+            // Label group type at bottom of pile
+            if (i === 1 || i === 3 || i === 5 || i === 7 || i === 9) {
+                ctx.fillStyle = pile.col;
+                ctx.font = 'bold 12px Segoe UI';
+                ctx.fillText(pile.type, px + pileW / 2, py + pileH + 20);
+            }
+        });
+
+        // 5. Settlement Indication Arrow (S)
+        const arrowX = raftX + raftW + 25;
+        const arrowY1 = raftY;
+        const arrowY2 = raftY + Math.min(S * 0.8, 60) + 20; // visual scale
+
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 3;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(arrowX, arrowY1);
+        ctx.lineTo(arrowX, arrowY2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Arrowhead
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.moveTo(arrowX - 6, arrowY2 - 8);
+        ctx.lineTo(arrowX + 6, arrowY2 - 8);
+        ctx.lineTo(arrowX, arrowY2 + 2);
+        ctx.closePath();
+        ctx.fill();
+
+        // Arrow Labels
+        ctx.font = 'bold 14px Segoe UI';
+        ctx.fillText('S', arrowX + 18, arrowY1 + 15);
+        ctx.font = '12px Segoe UI';
+        ctx.fillText('هبوط', arrowX + 22, arrowY1 + 32);
+        ctx.fillText(`${S.toFixed(1)} mm`, arrowX + 25, arrowY1 + 48);
+    }
+
+    // Initial Trigger
+    window.addEventListener('resize', calculate);
+    calculate();
+</script>
+
+</body>
+</html>
