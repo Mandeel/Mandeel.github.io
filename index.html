@@ -140,6 +140,47 @@
             font-size: 0.82rem;
         }
 
+        /* Per-silo 4-point monitoring limits grid */
+        .silo-limits-grid {
+            display: grid;
+            grid-template-columns: auto repeat(4, 1fr);
+            gap: 5px;
+            align-items: center;
+            background: #090d16;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            width: 100%;
+        }
+        .silo-limits-grid label { text-align: center; font-weight: bold; font-size: 0.72rem; margin: 0; color: #94a3b8;}
+        .silo-limits-grid input {
+            width: 100%;
+            min-width: 0;
+            text-align: center;
+            padding: 5px 2px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 4px;
+            color: var(--text-main);
+            font-size: 0.8rem;
+        }
+
+        /* Per-silo results table */
+        .silo-results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+        .silo-results-table th, .silo-results-table td {
+            padding: 8px 6px;
+            text-align: center;
+            border-bottom: 1px solid #334155;
+        }
+        .silo-results-table th { color: var(--text-muted); font-size: 0.75rem; font-weight: 600; }
+        .silo-results-table td.silo-name { font-weight: bold; color: var(--accent-blue); text-align: right; }
+        .silo-ok { color: var(--accent-green); font-weight: bold; }
+        .silo-bad { color: var(--accent-red); font-weight: bold; }
+
         .visualization-card { display: flex; flex-direction: column; gap: 18px; }
         
         .canvas-container {
@@ -225,8 +266,12 @@
                     <input type="number" id="qStatic" value="9211" oninput="calculate()">
                 </div>
                 <div class="form-group">
-                    <label>حمل السائل للخزان الواحد</label>
-                    <input type="number" id="qLivePerTank" value="15600" title="الحمل الأقصى للخزان الواحد عند امتلائه 100%" oninput="calculate()">
+                    <label>نصف قطر الخزان r (m)</label>
+                    <input type="number" step="0.01" id="tankRadius" value="3.75" title="نصف قطر الخزان الواحد — يُستخدم لحساب الحمل تلقائيًا: W = π·r²·h·ρ·g" oninput="calculate()">
+                </div>
+                <div class="form-group">
+                    <label>كثافة المادة ρ (kg/m³)</label>
+                    <input type="number" step="1" id="materialDensity" value="1440" title="كثافة السمنت الفعلية (كتلة/حجم)، تُستخدم في معادلة حساب الوزن تلقائيًا" oninput="calculate()">
                 </div>
             </div>
             
@@ -238,6 +283,7 @@
                         <input type="range" id="fillT1" min="0" max="100" value="100" oninput="calculate()">
                         <span class="slider-val" id="valT1">100%</span>
                     </div>
+                    <div class="subtext" id="loadT1">0 kN</div>
                 </div>
                 <div class="tank-control">
                     <label>خزان T-102</label>
@@ -245,6 +291,7 @@
                         <input type="range" id="fillT2" min="0" max="100" value="100" oninput="calculate()">
                         <span class="slider-val" id="valT2">0%</span>
                     </div>
+                    <div class="subtext" id="loadT2">0 kN</div>
                 </div>
                 <div class="tank-control">
                     <label>خزان T-103</label>
@@ -252,6 +299,7 @@
                         <input type="range" id="fillT3" min="0" max="100" value="100" oninput="calculate()">
                         <span class="slider-val" id="valT3">0%</span>
                     </div>
+                    <div class="subtext" id="loadT3">0 kN</div>
                 </div>
                 <div class="tank-control">
                     <label>خزان T-104</label>
@@ -259,6 +307,7 @@
                         <input type="range" id="fillT4" min="0" max="100" value="100" oninput="calculate()">
                         <span class="slider-val" id="valT4">0%</span>
                     </div>
+                    <div class="subtext" id="loadT4">0 kN</div>
                 </div>
             </div>
         </div>
@@ -301,9 +350,29 @@
             <h2>3. مصفوفة معاملات التفاعل (Σα)</h2>
             <div class="grid-3" style="margin-bottom: 8px;">
                 <div class="form-group">
-                    <label>معامل التربة (k) — لاختيار الـ figure فقط</label>
-                    <input type="number" id="kFactor" value="18" oninput="calculate()" title="توثيقي فقط: يُستخدم مع S/d و L/d لاختيار منحني التداخل المناسب من الـ database. لا يدخل في معادلة الحل — الجساءة الفعلية (k=1/Ƥ1) تُشتق من فحص PLT في القسم 4.">
+                    <label>نوع التربة</label>
+                    <select id="soilType" onchange="calculate()">
+                        <option value="Soft clay">Soft clay</option>
+                        <option value="Midum Clay">Medium Clay</option>
+                        <option value="Stiff Clay">Stiff Clay</option>
+                        <option value="Loose Sand" selected>Loose Sand</option>
+                        <option value="Dense Sand">Dense Sand</option>
+                    </select>
                 </div>
+                <div class="form-group">
+                    <label>مادة الركيزة</label>
+                    <select id="pileMaterial" onchange="calculate()">
+                        <option value="Steel">Steel</option>
+                        <option value="Concrete" selected>Concrete</option>
+                        <option value="Timber">Timber</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>k (من قاعدة البيانات)</label>
+                    <input type="text" id="kFactor" value="18" readonly style="opacity:0.75;" title="محسوبة تلقائيًا من جدول Research_data_base.xlsx (Sheet1) حسب نوع التربة ومادة الركيزة. توثيقي فقط: يُستخدم مع S/d و L/d لاختيار منحني التداخل من الـ database. لا يدخل في معادلة الحل — الجساءة الفعلية (k=1/Ƥ1) تُشتق من فحص PLT في القسم 4.">
+                </div>
+            </div>
+            <div class="grid-3" style="margin-bottom: 8px;">
                 <div class="form-group">
                     <label>قطر الركيزة d (m)</label>
                     <input type="number" id="pileD" value="0.6" oninput="calculate()">
@@ -312,12 +381,12 @@
                     <label>التباعد S/d</label>
                     <input type="number" id="sdRatio" value="4.0" oninput="calculate()">
                 </div>
-            </div>
-            <div class="grid-3" style="margin-bottom: 8px;">
                 <div class="form-group">
                     <label>طول الركيزة L (m)</label>
                     <input type="number" id="pileL" value="24" oninput="calculate()">
                 </div>
+            </div>
+            <div class="grid-3" style="margin-bottom: 8px;">
                 <div class="form-group">
                     <label>L/d (يحدد نوع الـ figure)</label>
                     <input type="text" id="ldRatio" value="" readonly style="opacity:0.75;">
@@ -327,30 +396,34 @@
                     <input type="number" id="unitFactor" value="1" oninput="calculate()" title="اجعلها 1000 اذا كانت k بوحدات تعطي الهبوط بالمتر">
                 </div>
             </div>
-            <p style="font-size:0.72rem;color:var(--text-muted);margin:-4px 0 10px;">
-                استخدم k و S/d و L/d اعلاه للدخول على منحني التداخل (interaction curves) المناسب لنوع
-                التربة/الركيزة من الـ database واستخرج α لكل زوج ركائز، ثم ادخل القيم يدويًا في المصفوفة ادناه.
-            </p>
+
+            <div class="form-group" style="margin-bottom:10px;">
+                <label>مصدر مصفوفة α</label>
+                <select id="alphaSource" onchange="calculate()">
+                    <option value="docx" selected>كما وردت نصًا في Settlement.docx </option>
+					<option value="database">محسوبة من قاعدة البيانات</option>                </select>
+            </div>
             
-            <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block;">معاملات التداخل الديناميكية (α)</label>
+            <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block;">معاملات التداخل الديناميكية (Σα)</label>
             <div class="matrix-container">
                 <div></div> <label>Grp A</label> <label>Grp B</label> <label>Grp C</label>
                 
                 <div class="matrix-row-label">Pile A</div>
-                <input type="number" step="0.001" id="a_aa" value="6.655" oninput="calculate()">
-                <input type="number" step="0.001" id="a_ab" value="4.056" oninput="calculate()">
-                <input type="number" step="0.001" id="a_ac" value="2.55" oninput="calculate()">
+                <input type="text" step="0.001" id="a_aa" value="6.375" readonly style="opacity:0.75;">
+                <input type="text" step="0.001" id="a_ab" value="4.056" readonly style="opacity:0.75;">
+                <input type="text" step="0.001" id="a_ac" value="2.560" readonly style="opacity:0.75;">
                 
                 <div class="matrix-row-label">Pile B</div>
-                <input type="number" step="0.001" id="a_ba" value="6.215" oninput="calculate()">
-                <input type="number" step="0.001" id="a_bb" value="5.43" oninput="calculate()">
-                <input type="number" step="0.001" id="a_bc" value="3.228" oninput="calculate()">
+                <input type="text" step="0.001" id="a_ba" value="6.215" readonly style="opacity:0.75;">
+                <input type="text" step="0.001" id="a_bb" value="5.430" readonly style="opacity:0.75;">
+                <input type="text" step="0.001" id="a_bc" value="3.228" readonly style="opacity:0.75;">
                 
                 <div class="matrix-row-label">Pile C</div>
-                <input type="number" step="0.001" id="a_ca" value="5.684" oninput="calculate()">
-                <input type="number" step="0.001" id="a_cb" value="3.67" oninput="calculate()">
-                <input type="number" step="0.001" id="a_cc" value="5.22" oninput="calculate()">
+                <input type="text" step="0.001" id="a_ca" value="5.584" readonly style="opacity:0.75;">
+                <input type="text" step="0.001" id="a_cb" value="3.670" readonly style="opacity:0.75;">
+                <input type="text" step="0.001" id="a_cc" value="5.250" readonly style="opacity:0.75;">
             </div>
+          
         </div>
 
         <!-- Pile Load Test Calibration & Monitoring Comparison -->
@@ -358,18 +431,49 @@
             <h2>4. معايرة فحص التحميل الحقلي (PLT) ومقارنة ورقة المراقبة</h2>
             <div class="grid-3">
                 <div class="form-group">
-                    <label>وحدة الهبوط من فحص الموقع (mm/kN)</label>
-                    <input type="number" step="0.0001" id="pltUnitSettlement" value="0.0054" oninput="calculate()">
+                    <label>حمل فحص التحميل الحقلي (kN)</label>
+                    <input type="number" step="1" id="pltTestLoad" value="1000" oninput="calculate()" title="الحمل المطبق أثناء فحص التحميل الحقلي (Pile Load Test)">
+                </div>
+                <div class="form-group">
+                    <label>هبوط الركيزة الناتج عن الفحص (mm)</label>
+                    <input type="number" step="0.01" id="pltMeasuredSettlement" value="5.4" oninput="calculate()" title="القيمة المقاسة ميدانيًا لهبوط الركيزة تحت حمل الفحص أعلاه، بالملم">
                 </div>
                 <div class="form-group">
                     <label>عدد الركائز الممثلة بالفحص</label>
-                    <input type="number" id="pltRepPiles" value="7" oninput="calculate()" title="القاسم المستخدم لاستخراج Ƥ من مجموع الهبوط">
-                </div>
-                <div class="form-group">
-                    <label>الحد المسموح (Format Sheet, mm)</label>
-                    <input type="number" step="0.01" id="monitorLimit" value="0.25" oninput="calculate()">
+                    <input type="number" id="pltRepPiles" value="7" oninput="calculate()" title="القاسم المستخدم لاستخراج Ƥ من مجموع الهبوط — يُدخل يدويًا">
                 </div>
             </div>
+            <p style="font-size:0.72rem;color:var(--text-muted);margin:8px 0;">
+                Ƥ1 (mm/kN) = هبوط الفحص ÷ حمل الفحص = <span id="pltUnitSettlementDisplay">0.0054</span> mm/kN — تُستخدم كجساءة الحل (1/Ƥ1) في الخطوة 3.
+            </p>
+
+            <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block;">الحد المسموح — أربع نقاط رصد لكل سايلو (ورقة المراقبة الحقلية، mm)</label>
+            <div class="silo-limits-grid">
+                <div></div><label>P1</label><label>P2</label><label>P3</label><label>P4</label>
+                <div class="matrix-row-label">Silo 1</div>
+                <input type="number" step="0.01" id="limS1P1" value="0.25" oninput="calculate()">
+                <input type="number" step="0.01" id="limS1P2" value="0.25" oninput="calculate()">
+                <input type="number" step="0.01" id="limS1P3" value="0.25" oninput="calculate()">
+                <input type="number" step="0.01" id="limS1P4" value="0.25" oninput="calculate()">
+                <div class="matrix-row-label">Silo 2</div>
+                <input type="number" step="0.01" id="limS2P1" value="0.25" oninput="calculate()">
+                <input type="number" step="0.01" id="limS2P2" value="0.25" oninput="calculate()">
+                <input type="number" step="0.01" id="limS2P3" value="0.25" oninput="calculate()">
+                <input type="number" step="0.01" id="limS2P4" value="0.25" oninput="calculate()">
+                <div class="matrix-row-label">Silo 3</div>
+                <input type="number" step="0.01" id="limS3P1" value="0.25" oninput="calculate()">
+                <input type="number" step="0.01" id="limS3P2" value="0.25" oninput="calculate()">
+                <input type="number" step="0.01" id="limS3P3" value="0.25" oninput="calculate()">
+                <input type="number" step="0.01" id="limS3P4" value="0.25" oninput="calculate()">
+                <div class="matrix-row-label">Silo 4</div>
+                <input type="number" step="0.01" id="limS4P1" value="0.25" oninput="calculate()">
+                <input type="number" step="0.01" id="limS4P2" value="0.25" oninput="calculate()">
+                <input type="number" step="0.01" id="limS4P3" value="0.25" oninput="calculate()">
+                <input type="number" step="0.01" id="limS4P4" value="0.25" oninput="calculate()">
+            </div>
+            <p style="font-size:0.7rem;color:var(--text-muted);margin:6px 0 0;">
+                يُقارن الهبوط المحسوب لكل سايلو بأقل قيمة (الأكثر تحفظًا) من نقاطه الأربع، مطابقةً لبنية Sheet_for_monitaring_system.xlsx.
+            </p>
         </div>
 
         <button class="btn" onclick="calculate()">تحديث الحسابات التشغيلية</button>
@@ -378,12 +482,22 @@
     <!-- Main Output Area -->
     <div class="visualization-card">
         
-        <!-- Results Grid -->
+        <!-- Results Grid: governing (worst-case) silo at a glance -->
         <div class="results-grid">
             <div class="result-card">
-                <label>الحمل الكلي للأساس (Q_total)</label>
+                <label>الحمل الحي الكلي لكل الخزانات (ΣQ_live)</label>
+                <div class="value" id="resQLive" style="color: var(--text-muted);">0 kN</div>
+                <div class="subtext">مجموع أحمال الخزانات الأربعة المحسوبة تلقائيًا</div>
+            </div>
+            <div class="result-card">
+                <label>السايلو الحاكم (أكبر هبوط)</label>
+                <div class="value" id="resGoverningSilo" style="color: white;">—</div>
+                <div class="subtext">Q_total لهذا السايلو أدناه</div>
+            </div>
+            <div class="result-card">
+                <label>Q_total (السايلو الحاكم)</label>
                 <div class="value" id="resQTotal" style="color: white;">0 kN</div>
-                <div class="subtext">الثابت + الحي التراكمي</div>
+                <div class="subtext">ثابت + حي هذا السايلو فقط</div>
             </div>
             <div class="result-card group-a">
                 <label>حمل ركيزة Group A</label>
@@ -398,13 +512,40 @@
                 <div class="value" id="resPc" style="color: var(--accent-green);">0 kN</div>
             </div>
             <div class="result-card settlement">
-                <label>هبوط الأساس المحسوب (Ƥ)</label>
+                <label>هبوط الأساس المحسوب δk (السايلو الحاكم)</label>
                 <div class="value" id="resSettlement" style="color: var(--accent-red);">0 mm</div>
             </div>
             <div class="result-card settlement">
                 <label>القيمة المقارنة بورقة المراقبة</label>
                 <div class="value" id="resMonitor" style="color: var(--accent-red);">0 mm</div>
                 <div class="subtext" id="resMonitorNote">—</div>
+            </div>
+        </div>
+
+        <!-- Per-Silo Breakdown -->
+        <div class="panel">
+            <h2>Q_total و δk لكل سايلو على حدة</h2>
+            <div style="overflow-x:auto;">
+                <table class="silo-results-table">
+                    <thead>
+                        <tr>
+                            <th>السايلو</th>
+                            <th>الامتلاء</th>
+                            <th>Q_live</th>
+                            <th>Q_total</th>
+                            <th>Pa</th>
+                            <th>Pb</th>
+                            <th>Pc</th>
+                            <th>δk (mm)</th>
+                            <th>Ƥ (mm)</th>
+                            <th>المقارنة</th>
+                            <th>الحد (أدنى 4 نقاط)</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody id="siloResultsBody">
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -572,6 +713,47 @@
         return M.map((row, i) => row[n] / row[i]);
     }
 
+    // K lookup table (Research_data_base.xlsx, Sheet1): soil type × pile material
+    const K_TABLE = {
+        'Soft clay':  { Steel: 60000, Concrete: 6000, Timber: 3000 },
+        'Midum Clay': { Steel: 20000, Concrete: 2000, Timber: 1000 },
+        'Stiff Clay': { Steel: 3000,  Concrete: 300,  Timber: 150  },
+        'Loose Sand': { Steel: 15000, Concrete: 1500, Timber: 750  },
+        'Dense Sand': { Steel: 5000,  Concrete: 500,  Timber: 250  }
+    };
+
+    // Per-pile interaction data (Research_data_base.xlsx, Sheet2 — identical geometry replicated
+    // under all 4 silos per Sheets 2-5). Each row: [pileNo, S/d-to-P1, α-to-P1, S/d-to-P18, α-to-P18, S/d-to-P38, α-to-P38]
+    // A pile's own S/d = 0 in a given column means that pile IS that representative (self-reference);
+    // the tabulated α for that case is 0 in the sheet, but must be treated as α = 1 (full self term).
+    const PILE_ALPHA_DATA = [[1,0,0,12.42,0.25,20.52,0.15],[2,2.98,0.51,13.08,0.24,21.33,0.15],[3,5.83,0.38,15.44,0.2,23.14,0.1],[4,8.43,0.28,18.09,0.16,24.08,0.1],[5,10.65,0.27,21,0.14,24.77,0.1],[6,2.98,0.51,10.4,0.267,19.8,0.16],[7,5.83,0.38,7.04,0.33,17.05,0.17],[8,8.43,0.28,3.5,0.48,15.04,0.2],[9,10.65,0.27,0.61,0.77,12.89,0.25],[10,15.59,0.2,24,0.1,25.85,0.09],[11,13.08,0.24,21,0.14,23.1,0.1],[12,10.82,0.27,18,0.17,20.41,0.15],[13,9,0.278,15,0.2,17.82,0.17],[14,7.94,0.29,12,0.24,15.38,0.2],[15,7.94,0.29,9,0.278,13.17,0.24],[16,9,0.278,6,0.385,11.33,0.29],[17,10.82,0.27,2.92,0.51,10.1,0.26],[18,13.08,0.24,0,0,9.62,0.28],[19,15.59,0.2,2.92,0.51,10.1,0.26],[20,17.55,0.17,24.06,0.1,25.17,0.09],[21,15.37,0.2,21.14,0.14,22.33,0.16],[22,13.5,0.24,18.08,0.17,19.54,0.16],[23,12.12,0.25,15.1,0.2,16.81,0.18],[24,11.36,0.26,12.12,0.247,14.2,0.24],[25,11.36,0.26,9.16,0.28,11.78,0.29],[26,12.12,0.25,6.24,0.37,9.68,0.28],[27,13.5,0.24,3.45,0.48,8.17,0.34],[28,15.37,0.2,1.71,0.62,7.6,0.33],[29,17.55,0.17,3.45,0.48,8.17,0.34],[30,22.03,0.16,25.85,0.09,24,0.1],[31,20.33,0.16,23.1,0.1,21,0.15],[32,18.96,0.16,20.41,0.15,18,0.17],[33,17.99,0.17,17.81,0.17,15,0.2],[34,17.48,0.17,15.38,0.2,12,0.247],[35,17.48,0.17,13.17,0.24,9,0.278],[36,17.99,0.17,11.33,0.29,6,0.385],[37,18.96,0.16,10.07,0.26,3,0.5],[38,20.33,0.16,9.62,0.28,0,0],[39,22.03,0.13,10.07,0.26,3,0.5],[40,22.58,0.12,27.11,0.11,24.19,0.1],[41,21.82,0.14,24.5,0.1,21.21,0.15],[42,20.54,0.16,21.98,0.14,18.25,0.16],[43,19.65,0.16,19.9,0.168,15.3,0.2],[44,19.18,0.16,17.41,0.17,12.37,0.25],[45,19.18,0.16,15.5,0.2,9.49,0.28],[46,19.65,0.16,13.97,0.24,6.71,0.33],[47,20.54,0.16,12.97,0.27,4.24,0.45],[48,21.82,0.14,12.61,0.25,3,0.5],[49,22.58,0.12,12.97,0.27,4.24,0.45],[50,14.9,0.095,23.15,0.1,15.22,0.2],[51,28.8,0.1,23.87,0.1,16.29,0.18],[52,29.27,0.11,25.35,0.09,19.7,0.16],[53,27.25,0.09,19.04,0.16,21.89,0.14],[54,26.17,0.11,28.7,0.11,23.84,0.1],[55,28.8,0.1,22.51,0.12,14.23,0.097],[56,29.27,0.11,19.95,0.168,12,0.261],[57,26,0.11,19.51,0.16,11.21,0.29],[58,27.25,0.08,19.4,0.16,11.1,0.29],[59,20.25,0.16,25.62,0.09,24.22,0.1],[60,20.25,0.16,15.65,0.2,4.46,0.456]];
+
+    // Explicit group membership (28 A / 16 B / 16 C), exactly as listed in Settlement.docx
+    const GROUP_A = [1,2,3,4,5,6,7,8,9,10,19,20,29,30,39,40,49,50,51,52,53,54,55,56,57,58,59,60];
+    const GROUP_B = [11,12,13,14,15,16,17,18,21,22,23,24,25,26,27,28];
+    const GROUP_C = [31,32,33,34,35,36,37,38,41,42,43,44,45,46,47,48];
+
+    // Compute the 3x3 Σα interaction matrix directly from the raw per-pile database,
+    // applying the self-reference correction (S/d=0 -> α treated as 1, not the tabulated 0).
+    function computeAlphaMatrix() {
+        const byPile = {};
+        PILE_ALPHA_DATA.forEach(r => { byPile[r[0]] = { sdA: r[1], aA: r[2], sdB: r[3], aB: r[4], sdC: r[5], aC: r[6] }; });
+        function alphaOf(pile, repCol) {
+            const d = byPile[pile];
+            const sd = d['sd' + repCol];
+            const a = d['a' + repCol];
+            return sd === 0 ? 1 : (a || 0); // self-reference correction
+        }
+        function rowSum(repCol, group) {
+            return group.reduce((s, p) => s + alphaOf(p, repCol), 0);
+        }
+        return {
+            a_aa: rowSum('A', GROUP_A), a_ab: rowSum('A', GROUP_B), a_ac: rowSum('A', GROUP_C),
+            a_ba: rowSum('B', GROUP_A), a_bb: rowSum('B', GROUP_B), a_bc: rowSum('B', GROUP_C),
+            a_ca: rowSum('C', GROUP_A), a_cb: rowSum('C', GROUP_B), a_cc: rowSum('C', GROUP_C)
+        };
+    }
+
     function calculate() {
         // Read Fill Percentages
         const fillT1 = parseFloat(document.getElementById('fillT1').value) / 100;
@@ -590,28 +772,42 @@
         // Read Loads
         const hFluid = parseFloat(document.getElementById('hFluid').value) || 25;
         const qStatic = parseFloat(document.getElementById('qStatic').value) || 0;
-        const qLivePerTank = parseFloat(document.getElementById('qLivePerTank').value) || 0;
+        const tankRadius = parseFloat(document.getElementById('tankRadius').value) || 0;
+        const materialDensity = parseFloat(document.getElementById('materialDensity').value) || 1440;
 
-        // Pile Counts
+        // Pile Counts (same layout replicated under every silo, per Research_data_base.xlsx sheets 2-5)
         const nA = parseInt(document.getElementById('nA').value) || 28;
         const nB = parseInt(document.getElementById('nB').value) || 16;
         const nC = parseInt(document.getElementById('nC').value) || 16;
-        
-        // Matrix Alpha
-        const a_aa = parseFloat(document.getElementById('a_aa').value);
-        const a_ab = parseFloat(document.getElementById('a_ab').value);
-        const a_ac = parseFloat(document.getElementById('a_ac').value);
-        
-        const a_ba = parseFloat(document.getElementById('a_ba').value);
-        const a_bb = parseFloat(document.getElementById('a_bb').value);
-        const a_bc = parseFloat(document.getElementById('a_bc').value);
-        
-        const a_ca = parseFloat(document.getElementById('a_ca').value);
-        const a_cb = parseFloat(document.getElementById('a_cb').value);
-        const a_cc = parseFloat(document.getElementById('a_cc').value);
+        const totalPiles = nA + nB + nC;
 
-        // K factor (relation between soil type & pile material, from database table)
-        const kFactor = parseFloat(document.getElementById('kFactor').value) || 18;
+        // Matrix Alpha — either computed live from the raw per-pile database (using the
+        // explicit A/B/C group membership from Settlement.docx and the self-reference
+        // correction S/d=0 -> α=1), or the docx's own stated final coefficients as-is
+        // (kept for comparison — see warning note; two of the docx's own final values
+        // don't match its own worked arithmetic).
+        const alphaSource = document.getElementById('alphaSource').value;
+        const DOCX_STATED_MATRIX = { a_aa: 6.655, a_ab: 4.056, a_ac: 2.55, a_ba: 6.215, a_bb: 5.43, a_bc: 3.228, a_ca: 5.684, a_cb: 3.67, a_cc: 5.22 };
+        const alphaMat = alphaSource === 'docx' ? DOCX_STATED_MATRIX : computeAlphaMatrix();
+        const a_aa = alphaMat.a_aa, a_ab = alphaMat.a_ab, a_ac = alphaMat.a_ac;
+        const a_ba = alphaMat.a_ba, a_bb = alphaMat.a_bb, a_bc = alphaMat.a_bc;
+        const a_ca = alphaMat.a_ca, a_cb = alphaMat.a_cb, a_cc = alphaMat.a_cc;
+        document.getElementById('a_aa').value = a_aa.toFixed(3);
+        document.getElementById('a_ab').value = a_ab.toFixed(3);
+        document.getElementById('a_ac').value = a_ac.toFixed(3);
+        document.getElementById('a_ba').value = a_ba.toFixed(3);
+        document.getElementById('a_bb').value = a_bb.toFixed(3);
+        document.getElementById('a_bc').value = a_bc.toFixed(3);
+        document.getElementById('a_ca').value = a_ca.toFixed(3);
+        document.getElementById('a_cb').value = a_cb.toFixed(3);
+        document.getElementById('a_cc').value = a_cc.toFixed(3);
+
+        // K factor — looked up from soil type × pile material (Research_data_base.xlsx, Sheet1)
+        const soilType = document.getElementById('soilType').value;
+        const pileMaterial = document.getElementById('pileMaterial').value;
+        const kFactor = (K_TABLE[soilType] && K_TABLE[soilType][pileMaterial]) || 18;
+        document.getElementById('kFactor').value = kFactor;
+
         const pileD = parseFloat(document.getElementById('pileD').value) || 0.6;
         const sdRatio = parseFloat(document.getElementById('sdRatio').value) || 4.0;
         const pileL = parseFloat(document.getElementById('pileL').value) || 24;
@@ -621,124 +817,157 @@
         const ldRatio = pileL / pileD;
         document.getElementById('ldRatio').value = ldRatio.toFixed(1);
 
-        // PLT calibration inputs
-        const pltUnitSettlement = parseFloat(document.getElementById('pltUnitSettlement').value) || 0;
+        // PLT calibration: settlement entered directly in mm (as measured in the field),
+        // test load entered in kN → Ƥ1 (mm/kN) derived internally, not typed in directly.
+        const pltTestLoad = parseFloat(document.getElementById('pltTestLoad').value) || 0;
+        const pltMeasuredSettlement = parseFloat(document.getElementById('pltMeasuredSettlement').value) || 0;
+        const pltUnitSettlement = pltTestLoad > 0 ? (pltMeasuredSettlement / pltTestLoad) : 0;
+        document.getElementById('pltUnitSettlementDisplay').innerText = pltUnitSettlement.toFixed(4);
         const pltRepPiles = parseFloat(document.getElementById('pltRepPiles').value) || 1;
-        const monitorLimit = parseFloat(document.getElementById('monitorLimit').value) || 0;
 
-        // 1. Loads: live load per tank (scaled by fill height/ratio) + static load
-        const hFactor = hFluid / 25;
-        const qLiveT1 = qLivePerTank * hFactor * fillT1;
-        const qLiveT2 = qLivePerTank * hFactor * fillT2;
-        const qLiveT3 = qLivePerTank * hFactor * fillT3;
-        const qLiveT4 = qLivePerTank * hFactor * fillT4;
-
-        const TotalLiveLoad = qLiveT1 + qLiveT2 + qLiveT3 + qLiveT4;
-        const Q_total = qStatic + TotalLiveLoad;
-
-        // 2. Stiffness term: per the governing equation (δk = Ƥ1·Σ(pj·αkj) + Ƥ1·pk),
-        //    the term that converts Σα·P into settlement is 1/Ƥ1, where Ƥ1 is the
-        //    pile-load-test unit settlement (site-measured flexibility) — NOT the
-        //    database k-factor above, which only picks which interaction chart to read.
+        // Stiffness term: per the governing equation (δk = Ƥ1·Σ(pj·αkj) + Ƥ1·pk),
+        // the term that converts Σα·P into settlement is 1/Ƥ1 (site-measured flexibility
+        // from the PLT test above) — NOT the database k-factor, which only picks the chart.
         const stiffness = pltUnitSettlement > 0 ? (1 / pltUnitSettlement) : kFactor;
 
-        // 3. Exact 4-equation / 4-unknown system for [Pa, Pb, Pc, S]:
-        //    Equal-settlement condition for each representative pile (A, B, C):
-        //      stiffness·S = Pa·αaa + Pb·αab + Pc·αac
-        //      stiffness·S = Pa·αba + Pb·αbb + Pc·αbc
-        //      stiffness·S = Pa·αca + Pb·αcb + Pc·αcc
-        //    Equilibrium (4th equation):
-        //      nA·Pa + nB·Pb + nC·Pc = Q_total
+        // Live load per tank, computed automatically from material volume:
+        // W (kN) = π·r²·h_fill·ρ·g / 1000
+        const GRAVITY = 9.81;
+        const tankArea = Math.PI * tankRadius * tankRadius; // m²
+        const qLiveT1 = tankArea * (fillT1 * hFluid) * materialDensity * GRAVITY / 1000;
+        const qLiveT2 = tankArea * (fillT2 * hFluid) * materialDensity * GRAVITY / 1000;
+        const qLiveT3 = tankArea * (fillT3 * hFluid) * materialDensity * GRAVITY / 1000;
+        const qLiveT4 = tankArea * (fillT4 * hFluid) * materialDensity * GRAVITY / 1000;
+        const qLiveBySilo = [qLiveT1, qLiveT2, qLiveT3, qLiveT4];
+        const TotalLiveLoad = qLiveT1 + qLiveT2 + qLiveT3 + qLiveT4;
+
+        document.getElementById('loadT1').innerText = qLiveT1.toFixed(0) + ' kN';
+        document.getElementById('loadT2').innerText = qLiveT2.toFixed(0) + ' kN';
+        document.getElementById('loadT3').innerText = qLiveT3.toFixed(0) + ' kN';
+        document.getElementById('loadT4').innerText = qLiveT4.toFixed(0) + ' kN';
+        document.getElementById('resQLive').innerText = TotalLiveLoad.toFixed(0) + ' kN';
+
+        // Per-silo monitoring limits (4 points each) — governing limit = min of the 4 (most conservative)
+        function siloLimit(i) {
+            const pts = [1, 2, 3, 4].map(p => parseFloat(document.getElementById(`limS${i}P${p}`).value) || 0)
+                                     .filter(v => v > 0);
+            return pts.length ? Math.min(...pts) : 0;
+        }
+        const limits = [1, 2, 3, 4].map(siloLimit);
+
+        // Solve the 4x4 system (α matrix + equilibrium) INDEPENDENTLY for each silo —
+        // each silo has its own 60-pile group (28A/16B/16C) and its own Q_total = Q_static + its own live load.
         const A_matrix = [
             [a_aa, a_ab, a_ac, -stiffness],
             [a_ba, a_bb, a_bc, -stiffness],
             [a_ca, a_cb, a_cc, -stiffness],
             [nA,   nB,   nC,   0]
         ];
-        const b_vector = [0, 0, 0, Q_total];
 
-        let Pa, Pb, Pc, S_calc, solveError = null;
-        try {
-            [Pa, Pb, Pc, S_calc] = solveLinearSystem(A_matrix, b_vector);
-        } catch (e) {
-            solveError = e.message;
-            Pa = Pb = Pc = S_calc = 0;
+        const siloResults = [];
+        for (let i = 0; i < 4; i++) {
+            const Q_total_i = qStatic + qLiveBySilo[i];
+            const b_vector = [0, 0, 0, Q_total_i];
+            let Pa, Pb, Pc, S_calc, solveError = null;
+            try {
+                [Pa, Pb, Pc, S_calc] = solveLinearSystem(A_matrix, b_vector);
+            } catch (e) {
+                solveError = e.message;
+                Pa = Pb = Pc = S_calc = 0;
+            }
+            const settlement_mm = S_calc * unitFactor;
+            const perPileComparator = pltRepPiles > 0 ? (settlement_mm / pltRepPiles) / totalPiles : 0;
+            const limit = limits[i];
+            const exceeds = limit > 0 && perPileComparator > limit;
+            // Physical validity check: a negative pile load is not physically meaningful
+            // for this gravity-loading configuration — flag it instead of silently showing it.
+            if (!solveError && (Pa < 0 || Pb < 0 || Pc < 0)) {
+                solveError = `حمل ركيزة سالب غير منطقي فيزيائيًا (Pa=${Pa.toFixed(0)}, Pb=${Pb.toFixed(0)}, Pc=${Pc.toFixed(0)}) — تحقق من مصفوفة α`;
+            }
+            siloResults.push({
+                silo: i + 1, fillPct: Math.round(fillRatios[i] * 100), qLive: qLiveBySilo[i],
+                Q_total: Q_total_i, Pa, Pb, Pc, settlement_mm, perPileComparator, limit, exceeds, solveError
+            });
         }
 
-        const settlement_mm = S_calc * unitFactor;
+        // Governing (worst-case) silo = highest settlement
+        const governing = siloResults.reduce((a, b) => (b.settlement_mm > a.settlement_mm ? b : a));
 
-        // 4. PLT cross-check: an independent, average-pile-load-basis estimate of settlement,
-        //    shown alongside the solved result for sanity comparison (the PLT value itself
-        //    already drives resSettlement above via `stiffness`, so this is a secondary check,
-        //    not the primary calibration).
-        const totalPiles = nA + nB + nC;
-        const siteExpectedSettlement = pltUnitSettlement * (Q_total / totalPiles); // mm, avg pile load basis
-        // Final per-pile comparator: Ƥ (settlement normalized by rep. test piles) / total pile count
-        const perPileComparator = pltRepPiles > 0 ? (settlement_mm / pltRepPiles) / totalPiles : 0;
-
-        // Update UI
-        document.getElementById('resQTotal').innerText = Q_total.toFixed(0) + ' kN';
-        document.getElementById('resPa').innerText = Pa.toFixed(1) + ' kN';
-        document.getElementById('resPb').innerText = Pb.toFixed(1) + ' kN';
-        document.getElementById('resPc').innerText = Pc.toFixed(1) + ' kN';
-        document.getElementById('resSettlement').innerText = settlement_mm.toFixed(2) + ' mm';
-        document.getElementById('resMonitor').innerText = perPileComparator.toFixed(3) + ' mm';
+        // Update governing-case summary cards
+        document.getElementById('resGoverningSilo').innerText = `Silo ${governing.silo}`;
+        document.getElementById('resQTotal').innerText = governing.Q_total.toFixed(0) + ' kN';
+        document.getElementById('resPa').innerText = governing.Pa.toFixed(1) + ' kN';
+        document.getElementById('resPb').innerText = governing.Pb.toFixed(1) + ' kN';
+        document.getElementById('resPc').innerText = governing.Pc.toFixed(1) + ' kN';
+        document.getElementById('resSettlement').innerText = governing.settlement_mm.toFixed(2) + ' mm';
+        document.getElementById('resMonitor').innerText = governing.perPileComparator.toFixed(3) + ' mm';
         document.getElementById('resMonitorNote').innerText =
-            monitorLimit > 0 ? `الحد المسموح: ${monitorLimit} mm` : 'أدخل الحد المسموح';
+            governing.limit > 0 ? `الحد المسموح (Silo ${governing.silo}): ${governing.limit} mm` : 'أدخل نقاط الحد المسموح';
 
-        // Badge Status — driven by the monitoring-sheet comparison, not an arbitrary threshold
+        // Badge Status — any silo exceeding its own monitoring limit flags DANGER
         const badge = document.getElementById('statusBadge');
-        if (solveError) {
+        const anyError = siloResults.find(s => s.solveError);
+        const anyExceeds = siloResults.find(s => s.exceeds);
+        if (anyError) {
             badge.className = 'status-badge status-danger';
-            badge.innerText = '⚠ خطأ في الحل: ' + solveError;
-        } else if (monitorLimit > 0 && perPileComparator > monitorLimit) {
+            badge.innerText = '⚠ خطأ في الحل: ' + anyError.solveError;
+        } else if (anyExceeds) {
             badge.className = 'status-badge status-danger';
-            badge.innerText = '⚠ الوضع حرج (يتجاوز حد ورقة المراقبة)';
+            badge.innerText = `⚠ الوضع حرج (Silo ${anyExceeds.silo} يتجاوز حد ورقة المراقبة)`;
         } else {
             badge.className = 'status-badge status-safe';
-            badge.innerText = '● الوضع آمن (SAFE)';
+            badge.innerText = '● الوضع آمن (SAFE) — جميع السايلوهات ضمن الحد';
         }
 
-        // Draw Canvas
-        drawStructure(fillRatios, settlement_mm);
+        // Populate per-silo results table
+        const tbody = document.getElementById('siloResultsBody');
+        tbody.innerHTML = siloResults.map(s => `
+            <tr>
+                <td class="silo-name">Silo ${s.silo}</td>
+                <td>${s.fillPct}%</td>
+                <td>${s.qLive.toFixed(0)}</td>
+                <td>${s.Q_total.toFixed(0)}</td>
+                <td>${s.Pa.toFixed(1)}</td>
+                <td>${s.Pb.toFixed(1)}</td>
+                <td>${s.Pc.toFixed(1)}</td>
+                <td>${s.settlement_mm.toFixed(2)}</td>
+                <td>${(s.settlement_mm/pltRepPiles).toFixed(2)}</td>
+                <td>${s.perPileComparator.toFixed(3)}</td>
+                <td>${s.limit > 0 ? s.limit.toFixed(2) : '—'}</td>
+                <td class="${s.exceeds ? 'silo-bad' : 'silo-ok'}">${s.solveError ? 'خطأ' : (s.exceeds ? 'تجاوز' : 'آمن')}</td>
+            </tr>`).join('');
+
+        // Draw Canvas — using the governing silo's settlement to drive the raft deflection visual
+        drawStructure(fillRatios, governing.settlement_mm);
 
         // Update Log
         const logHtml = `
-<span class="step-highlight">[STEP 1] Tank Live & Total Load Calculation</span>
-<span class="step-equation">Q_live_i = Tank_Max_Live × (h_actual / 25) × Fill_Ratio</span>
-<span class="step-equation">T-101: ${qLiveT1.toFixed(0)} kN  (${Math.round(fillT1*100)}%)</span>
-<span class="step-equation">T-102: ${qLiveT2.toFixed(0)} kN  (${Math.round(fillT2*100)}%)</span>
-<span class="step-equation">T-103: ${qLiveT3.toFixed(0)} kN  (${Math.round(fillT3*100)}%)</span>
-<span class="step-equation">T-104: ${qLiveT4.toFixed(0)} kN  (${Math.round(fillT4*100)}%)</span>
-<span class="step-equation">Total Live Load = ${TotalLiveLoad.toFixed(0)} kN</span>
-<span class="step-equation">Q_total = Q_static + Q_live = ${qStatic} + ${TotalLiveLoad.toFixed(0)} = ${Q_total.toFixed(0)} kN</span>
+<span class="step-highlight">[STEP 1] Tank Live Load — computed automatically from material volume</span>
+<span class="step-equation">W_i = π·r²·h_fill,i·ρ·g / 1000  (r=${tankRadius} m, ρ=${materialDensity} kg/m³, g=9.81 m/s², h_max=${hFluid} m)</span>
+<span class="step-equation">T-101 (Silo 1): π×${tankRadius}²×${(fillT1*hFluid).toFixed(1)}×${materialDensity}×9.81/1000 = ${qLiveT1.toFixed(0)} kN  (${Math.round(fillT1*100)}%)</span>
+<span class="step-equation">T-102 (Silo 2): π×${tankRadius}²×${(fillT2*hFluid).toFixed(1)}×${materialDensity}×9.81/1000 = ${qLiveT2.toFixed(0)} kN  (${Math.round(fillT2*100)}%)</span>
+<span class="step-equation">T-103 (Silo 3): π×${tankRadius}²×${(fillT3*hFluid).toFixed(1)}×${materialDensity}×9.81/1000 = ${qLiveT3.toFixed(0)} kN  (${Math.round(fillT3*100)}%)</span>
+<span class="step-equation">T-104 (Silo 4): π×${tankRadius}²×${(fillT4*hFluid).toFixed(1)}×${materialDensity}×9.81/1000 = ${qLiveT4.toFixed(0)} kN  (${Math.round(fillT4*100)}%)</span>
+<span class="step-equation">Q_total is now computed PER SILO = Q_static + that silo's own live load (not summed across silos)</span>
 
-<span class="step-highlight">[STEP 2] Interaction Chart Selection (documentation only: k, S/d, L/d → figure → α)</span>
-<span class="step-equation">k (database, chart-selection label only — NOT the solver stiffness) = ${kFactor}</span>
+<span class="step-highlight">[STEP 2] k Lookup & Interaction Chart Selection (documentation only)</span>
+<span class="step-equation">k = K_TABLE[${soilType}][${pileMaterial}] = ${kFactor}  (Research_data_base.xlsx, Sheet1 — NOT the solver stiffness)</span>
 <span class="step-equation">S/d = ${sdRatio}  |  L/d = ${pileL}/${pileD} = ${ldRatio.toFixed(1)}  →  used to pick the α interaction curve/figure</span>
-<span class="step-equation">α matrix (read from chart, entered manually):</span>
+<span class="step-equation">α matrix (computed live: Σα per group, from the 60-pile database + self-reference correction S/d=0→α=1):</span>
 <span class="step-equation">  Pile A row: αaa=${a_aa} αab=${a_ab} αac=${a_ac}</span>
 <span class="step-equation">  Pile B row: αba=${a_ba} αbb=${a_bb} αbc=${a_bc}</span>
 <span class="step-equation">  Pile C row: αca=${a_ca} αcb=${a_cb} αcc=${a_cc}</span>
 
-<span class="step-highlight">[STEP 3] Solver Stiffness — from PLT, not the database k</span>
-<span class="step-equation">δk = Ƥ1·Σ(pj·αkj) + Ƥ1·pk  →  stiffness = 1/Ƥ1 = 1/${pltUnitSettlement} = ${stiffness.toFixed(2)} kN/mm</span>
+<span class="step-highlight">[STEP 3] Solver Stiffness — from PLT test (settlement in mm ÷ test load in kN)</span>
+<span class="step-equation">Ƥ1 = pltMeasuredSettlement / pltTestLoad = ${pltMeasuredSettlement} / ${pltTestLoad} = ${pltUnitSettlement.toFixed(4)} mm/kN</span>
+<span class="step-equation">δk = Ƥ1·Σ(pj·αkj) + Ƥ1·pk  →  stiffness = 1/Ƥ1 = ${stiffness.toFixed(2)} kN/mm  (shared by all 4 silos — same soil/pile system)</span>
 
-<span class="step-highlight">[STEP 4] 4×4 System (3 equal-settlement eqs + 1 equilibrium eq) for [Pa, Pb, Pc, S]</span>
-<span class="step-equation">stiffness·S = Pa·αaa + Pb·αab + Pc·αac</span>
-<span class="step-equation">stiffness·S = Pa·αba + Pb·αbb + Pc·αbc</span>
-<span class="step-equation">stiffness·S = Pa·αca + Pb·αcb + Pc·αcc</span>
-<span class="step-equation">${nA}·Pa + ${nB}·Pb + ${nC}·Pc = ${Q_total.toFixed(0)}  (equilibrium)</span>
-${solveError ? `<span class="step-equation">SOLVE ERROR: ${solveError}</span>` : `
-<span class="step-equation">→ Pa = ${Pa.toFixed(2)} kN  |  Pb = ${Pb.toFixed(2)} kN  |  Pc = ${Pc.toFixed(2)} kN</span>
-<span class="step-equation">→ S (raw, from any equation) = ${S_calc.toFixed(5)}  →  settlement = ${settlement_mm.toFixed(2)} mm</span>`}
+<span class="step-highlight">[STEP 4] Per-Silo 4×4 System — solved independently for each silo's own Q_total</span>
+${siloResults.map(s => `<span class="step-equation">Silo ${s.silo}: Q_total=${s.Q_total.toFixed(0)} kN → Pa=${s.Pa.toFixed(1)}, Pb=${s.Pb.toFixed(1)}, Pc=${s.Pc.toFixed(1)} kN  →  δk=${s.settlement_mm.toFixed(2)} mm${s.solveError ? '  [SOLVE ERROR: '+s.solveError+']' : ''}</span>`).join('\n')}
 
-<span class="step-highlight">[STEP 5] Pile Load Test (PLT) Cross-Check & Monitoring-Sheet Comparison</span>
-<span class="step-equation">Site test unit settlement (Ƥ1) = ${pltUnitSettlement} mm/kN  →  already used above as 1/Ƥ1 in STEP 3</span>
-<span class="step-equation">Secondary cross-check, avg pile load basis ≈ ${pltUnitSettlement} × (${Q_total.toFixed(0)}/${totalPiles}) = ${siteExpectedSettlement.toFixed(2)} mm</span>
-<span class="step-equation">Ƥ = settlement_mm / rep. test piles = ${settlement_mm.toFixed(2)} / ${pltRepPiles} = ${(settlement_mm/pltRepPiles).toFixed(2)} mm</span>
-<span class="step-equation">Comparator = Ƥ / total piles = ${(settlement_mm/pltRepPiles).toFixed(2)} / ${totalPiles} = ${perPileComparator.toFixed(3)} mm</span>
-<span class="step-equation">Monitoring sheet limit = ${monitorLimit} mm  →  ${monitorLimit > 0 ? (perPileComparator > monitorLimit ? 'EXCEEDS LIMIT' : 'WITHIN LIMIT') : 'no limit set'}</span>
+<span class="step-highlight">[STEP 5] PLT Ƥ Normalization & Per-Silo Monitoring Comparison (4-point limits, min governs)</span>
+${siloResults.map(s => `<span class="step-equation">Silo ${s.silo}: Ƥ=δk/${pltRepPiles}=${(s.settlement_mm/pltRepPiles).toFixed(2)}mm → Comparator=Ƥ/${totalPiles}piles=${s.perPileComparator.toFixed(3)}mm  vs limit(min of 4 pts)=${s.limit>0?s.limit.toFixed(2):'—'}mm  →  ${s.limit>0?(s.exceeds?'EXCEEDS':'WITHIN LIMIT'):'no limit set'}</span>`).join('\n')}
+<span class="step-equation">Governing case (max δk): Silo ${governing.silo}</span>
         `;
         document.getElementById('logContent').innerHTML = logHtml;
     }
