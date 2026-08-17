@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام حساب هبوط مجاميع الركائز المتقدم | Structural Settlement Engine</title>
+    <title>نظام التحليل المتقدم لهبوط ركائز الخزانات نتيجة التحميل و التفريغ المستمر</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -256,10 +256,38 @@
 </head>
 <body>
 
+<!-- ============ Password Gate ============
+     تنبيه: هذا حاجز أساسي على مستوى الواجهة فقط (client-side)، وليس أمانًا حقيقيًا —
+     الملف بأكمله (بما فيه كلمة السر أدناه) موجود في المصدر النصي لأي متصفح يفتحه،
+     ولا يوجد خادم (server) يتحقق من الدخول. يصلح لمنع الفتح العرضي فقط، وليس لحماية
+     بيانات حساسة. لأمان حقيقي يلزم نشر الملف خلف تسجيل دخول فعلي على خادم. -->
+<div id="passwordGate" style="position:fixed;inset:0;background:#0f172a;z-index:9999;display:flex;align-items:center;justify-content:center;">
+    <div style="background:#1e293b;padding:36px 40px;border-radius:12px;max-width:380px;width:90%;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,0.5);">
+        <div style="font-size:2rem;margin-bottom:8px;">🔒</div>
+        <h2 style="color:#f1f5f9;font-size:1.1rem;margin-bottom:6px;">نظام التحليل المتقدم لهبوط ركائز الخزانات</h2>
+        <p style="color:#94a3b8;font-size:0.8rem;margin-bottom:18px;">الرجاء إدخال كلمة السر للمتابعة</p>
+        <input type="password" id="gatePasswordInput" placeholder="كلمة السر" style="width:100%;padding:10px;border-radius:6px;border:1px solid #334155;background:#0f172a;color:#f1f5f9;text-align:center;font-size:1rem;margin-bottom:12px;" onkeydown="if(event.key==='Enter') checkGatePassword()">
+        <button class="btn" style="width:100%;margin:0;" onclick="checkGatePassword()">دخول</button>
+        <p id="gateError" style="color:#ef4444;font-size:0.78rem;margin-top:10px;display:none;">كلمة السر غير صحيحة، حاول مجددًا.</p>
+    </div>
+</div>
+<script>
+    // كلمة السر الافتراضية — غيّرها هنا. تذكير: هذا ليس أمانًا فعليًا (انظر الملاحظة أعلاه).
+    const GATE_PASSWORD = "silo2026";
+    function checkGatePassword() {
+        const val = document.getElementById('gatePasswordInput').value;
+        if (val === GATE_PASSWORD) {
+            document.getElementById('passwordGate').style.display = 'none';
+        } else {
+            document.getElementById('gateError').style.display = 'block';
+        }
+    }
+</script>
+
 <div class="container">
     <header>
         <div>
-            <h1>نظام التحليل المتقدم لهبوط مجاميع الركائز للخزانات</h1>
+            <h1>نظام التحليل المتقدم لهبوط ركائز الخزانات نتيجة التحميل و التفريغ المستمر</h1>
             <p>تحكم فردي بمناسيب الخزانات، الخواص الجيوتكنيكية، ومعايرة فحوصات الموقع (Format Sheet)</p>
         </div>
         <div id="statusBadge" class="status-badge status-safe">
@@ -466,8 +494,8 @@
                 </div>
             </div>
             <div class="form-group">
-                <label>تاريخ فحص التحميل الحقلي (PLT Test Date)</label>
-                <input type="date" id="pltTestDate" value="2026-07-06" oninput="calculate()" title="تاريخ إجراء فحص التحميل الحقلي في الموقع">
+                <label>تاريخ فحص الهبوط باستخدام اجهزة المساحة</label>
+                <input type="date" id="pltTestDate" value="2026-07-06" oninput="calculate()" title="تاريخ رصد الهبوط بأجهزة المساحة (Total Station) في الموقع — تُطبع في تقرير PDF فقط، ولا تدخل في أي حساب رقمي.">
             </div>
             <p style="font-size:0.72rem;color:var(--text-muted);margin:8px 0;">
                 Ƥ1 (mm/kN) = هبوط الفحص ÷ حمل الفحص = 7 ÷ 1300 = <span id="pltUnitSettlementDisplay">0.0054</span> mm/kN — تُستخدم كجساءة الحل (1/Ƥ1) في الخطوة 3. (متوافقة مع قيمة 0.0054mm/kN المرجعية في Settlement.docx.)
@@ -497,12 +525,12 @@
                 <input type="number" step="0.01" id="limS4P3" value="0.25" oninput="calculate()">
                 <input type="number" step="0.01" id="limS4P4" value="0.25" oninput="calculate()">
             </div>
-            <p style="font-size:0.7rem;color:var(--text-muted);margin:6px 0 0;">
-                يُقارن الهبوط المحسوب لكل سايلو بأقل قيمة (الأكثر تحفظًا) من نقاطه الأربع، مطابقةً لبنية Sheet_for_monitaring_system.xlsx.
-            </p>
         </div>
 
-        <button class="btn" onclick="generatePDFReport()">🖨️ إنشاء تقرير PDF (بتاريخ فحص PLT)</button>
+        <button class="btn" onclick="generatePDFReport()">🖨️ إنشاء تقرير PDF (بتاريخ فحص الهبوط)</button>
+        <p style="font-size:0.7rem;color:var(--text-muted);margin:6px 0 0;">
+            يُقارن الهبوط المحسوب لكل سايلو بأعلى قيمة (الأكثر تحفظًا) من نقاطه الأربع، مطابقةً لبنية Sheet_for_monitaring_system.xlsx.
+        </p>
     </div>
 
     <!-- Main Output Area -->
@@ -884,11 +912,11 @@
         document.getElementById('loadT4').innerText = qLiveT4.toFixed(0) + ' kN';
         document.getElementById('resQLive').innerText = TotalLiveLoad.toFixed(0) + ' kN';
 
-        // Per-silo monitoring limits (4 points each) — governing limit = min of the 4 (most conservative)
+        // Per-silo monitoring limits (4 points each) — governing limit = max of the 4 (most conservative, per Sheet_for_monitaring_system.xlsx)
         function siloLimit(i) {
             const pts = [1, 2, 3, 4].map(p => parseFloat(document.getElementById(`limS${i}P${p}`).value) || 0)
                                      .filter(v => v > 0);
-            return pts.length ? Math.min(...pts) : 0;
+            return pts.length ? Math.max(...pts) : 0;
         }
         const limits = [1, 2, 3, 4].map(siloLimit);
 
@@ -1007,39 +1035,85 @@ ${alphaMatricesBySilo.map((am,idx) => `<span class="step-equation">  Silo ${idx+
 <span class="step-highlight">[STEP 4] Per-Silo 4×4 System — solved independently for each silo's own Q_total AND its own α matrix</span>
 ${siloResults.map(s => `<span class="step-equation">Silo ${s.silo}: Q_total=${s.Q_total.toFixed(0)} kN → Pa=${s.Pa.toFixed(1)}, Pb=${s.Pb.toFixed(1)}, Pc=${s.Pc.toFixed(1)} kN  →  δk (raw group settlement)=${s.settlement_mm.toFixed(2)} mm${s.solveError ? '  [SOLVE ERROR: '+s.solveError+']' : ''}</span>`).join('\n')}
 
-<span class="step-highlight">[STEP 5] PLT Ƥ Normalization (معدل الهبوط) & Per-Silo Field-Monitoring Comparison (4-point، الأدنى هو الحاكم)</span>
-${siloResults.map(s => `<span class="step-equation">Silo ${s.silo}: معدل الهبوط Ƥ=δk/${pltRepPiles}=${(s.settlement_mm/pltRepPiles).toFixed(2)}mm → الهبوط الحقيقي لكل الركائز=Ƥ/${totalPiles}piles=${s.perPileComparator.toFixed(3)}mm  vs المراقبة الحقلية(4 نقاط, أدنى قيمة)=${s.limit>0?s.limit.toFixed(2):'—'}mm  →  ${s.limit>0?(s.exceeds?'EXCEEDS':'WITHIN LIMIT'):'no limit set'}</span>`).join('\n')}
+<span class="step-highlight">[STEP 5] PLT Ƥ Normalization (معدل الهبوط) & Per-Silo Field-Monitoring Comparison (4-point، الأعلى هو الحاكم)</span>
+${siloResults.map(s => `<span class="step-equation">Silo ${s.silo}: معدل الهبوط Ƥ=δk/${pltRepPiles}(عدد الركائز الممثلة)=${(s.settlement_mm/pltRepPiles).toFixed(2)}mm → الهبوط الحقيقي لكل الركائز=Ƥ/${totalPiles}piles=${s.perPileComparator.toFixed(3)}mm  vs المراقبة الحقلية(4 نقاط, أعلى قيمة)=${s.limit>0?s.limit.toFixed(2):'—'}mm  →  ${s.limit>0?(s.exceeds?'EXCEEDS':'WITHIN LIMIT'):'no limit set'}</span>`).join('\n')}
 <span class="step-equation">"معدل الهبوط" المعروض في بطاقة النتائج العلوية = Ƥ للسايلو الحاكم (وليس δk الخام)</span>
 <span class="step-equation">Governing case (max δk): Silo ${governing.silo}</span>
         `;
         document.getElementById('logContent').innerHTML = logHtml;
     }
 
-    // Builds a clean, light-themed report header (project + PLT test date + key
-    // assumptions) and triggers the browser's native print dialog, where the user
-    // picks "Save as PDF" — this renders Arabic text correctly (unlike client-side
-    // PDF libraries, which mangle RTL/Arabic shaping).
+    // Formats any date (Date object or 'YYYY-MM-DD' string) into one consistent,
+    // formal Arabic long-form pattern, so every date on the report reads the same way.
+    function formatDateAr(d) {
+        const dateObj = (d instanceof Date) ? d : new Date(d + 'T00:00:00');
+        if (isNaN(dateObj)) return 'غير محدد';
+        return dateObj.toLocaleDateString('ar-IQ', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    // Builds a clean, light-themed report header (project + ALL input parameters +
+    // results) and triggers the browser's native print dialog, where the user picks
+    // "Save as PDF" — this renders Arabic text correctly (unlike client-side PDF
+    // libraries, which mangle RTL/Arabic shaping).
     function generatePDFReport() {
         calculate(); // ensure every figure in the report is fresh
 
-        const pltDate = document.getElementById('pltTestDate').value || 'غير محدد';
-        const pltLoad = document.getElementById('pltTestLoad').value;
-        const pltSettle = document.getElementById('pltMeasuredSettlement').value;
-        const pltUnit = document.getElementById('pltUnitSettlementDisplay').innerText;
-        const alphaSourceText = document.getElementById('alphaSource').selectedOptions[0].text;
-        const genDate = new Date().toLocaleDateString('ar-IQ', { year: 'numeric', month: 'long', day: 'numeric' });
-        const status = document.getElementById('statusBadge').innerText.trim();
+        const g = id => document.getElementById(id);
+        const pltDate = g('pltTestDate').value ? formatDateAr(g('pltTestDate').value) : 'غير محدد';
+        const genDate = formatDateAr(new Date());
+        const alphaSourceText = g('alphaSource').selectedOptions[0].text;
+        const soilText = g('soilType').selectedOptions[0].text;
+        const materialText = g('pileMaterial').selectedOptions[0].text;
+        const status = g('statusBadge').innerText.trim();
+
+        const limitsRows = [1, 2, 3, 4].map(s =>
+            `<tr><td><b>Silo ${s}</b></td><td>${g(`limS${s}P1`).value}</td><td>${g(`limS${s}P2`).value}</td><td>${g(`limS${s}P3`).value}</td><td>${g(`limS${s}P4`).value}</td></tr>`
+        ).join('');
 
         document.getElementById('printReportHeader').innerHTML = `
-            <h2>تقرير التحليل الإنشائي لهبوط مجاميع الركائز</h2>
+            <h2>تقرير التحليل الإنشائي لهبوط ركائز الخزانات</h2>
             <table>
                 <tr><td><b>تاريخ إصدار التقرير</b></td><td>${genDate}</td>
-                    <td><b>تاريخ فحص التحميل الحقلي (PLT Test Date)</b></td><td>${pltDate}</td></tr>
-                <tr><td><b>حمل الفحص (Workable Load)</b></td><td>${pltLoad} kN</td>
-                    <td><b>هبوط الفحص (Test Settlement)</b></td><td>${pltSettle} mm</td></tr>
-                <tr><td><b>Ƥ1 المشتقة من الفحص</b></td><td>${pltUnit} mm/kN</td>
-                    <td><b>مصدر مصفوفة α المعتمد</b></td><td>${alphaSourceText}</td></tr>
+                    <td><b>تاريخ فحص الهبوط (أجهزة المساحة)</b></td><td>${pltDate}</td></tr>
                 <tr><td><b>حالة النظام</b></td><td colspan="3">${status}</td></tr>
+            </table>
+
+            <h3 style="font-size:1rem;margin-top:14px;">١) معايرة فحص التحميل الحقلي (PLT)</h3>
+            <table>
+                <tr><td><b>حمل الفحص (Workable Load)</b></td><td>${g('pltTestLoad').value} kN</td>
+                    <td><b>هبوط الفحص (Test Settlement)</b></td><td>${g('pltMeasuredSettlement').value} mm</td></tr>
+                <tr><td><b>عدد الركائز الممثلة بالفحص</b></td><td>${g('pltRepPiles').value}</td>
+                    <td><b>Ƥ1 المشتقة من الفحص</b></td><td>${g('pltUnitSettlementDisplay').innerText} mm/kN</td></tr>
+                <tr><td><b>مصدر مصفوفة α المعتمد</b></td><td colspan="3">${alphaSourceText}</td></tr>
+            </table>
+
+            <h3 style="font-size:1rem;margin-top:14px;">٢) خواص التربة والركائز</h3>
+            <table>
+                <tr><td><b>نوع التربة</b></td><td>${soilText}</td>
+                    <td><b>مادة الركيزة</b></td><td>${materialText}</td></tr>
+                <tr><td><b>معامل K</b></td><td>${g('kFactor').value}</td>
+                    <td><b>قطر الركيزة d</b></td><td>${g('pileD').value} m</td></tr>
+                <tr><td><b>طول الركيزة L</b></td><td>${g('pileL').value} m</td>
+                    <td><b>L/d</b></td><td>${g('ldRatio').value}</td></tr>
+                <tr><td><b>معامل تحويل الهبوط الى mm</b></td><td colspan="3">${g('unitFactor').value}</td></tr>
+            </table>
+
+            <h3 style="font-size:1rem;margin-top:14px;">٣) أحمال الخزانات</h3>
+            <table>
+                <tr><td><b>نصف قطر الخزان r</b></td><td>${g('tankRadius').value} m</td>
+                    <td><b>كثافة المادة المخزّنة</b></td><td>${g('materialDensity').value} kg/m³</td></tr>
+                <tr><td><b>ارتفاع الامتلاء الكامل h</b></td><td>${g('hFluid').value} m</td>
+                    <td><b>الحمل الساكن qStatic</b></td><td>${g('qStatic').value} kN</td></tr>
+                <tr><td><b>نسبة امتلاء Silo 1</b></td><td>${g('fillT1').value}%</td>
+                    <td><b>نسبة امتلاء Silo 2</b></td><td>${g('fillT2').value}%</td></tr>
+                <tr><td><b>نسبة امتلاء Silo 3</b></td><td>${g('fillT3').value}%</td>
+                    <td><b>نسبة امتلاء Silo 4</b></td><td>${g('fillT4').value}%</td></tr>
+            </table>
+
+            <h3 style="font-size:1rem;margin-top:14px;">٤) الحد المسموح — المراقبة الحقلية (4 نقاط لكل سايلو، mm)</h3>
+            <table>
+                <tr><td></td><td><b>P1</b></td><td><b>P2</b></td><td><b>P3</b></td><td><b>P4</b></td></tr>
+                ${limitsRows}
             </table>
         `;
 
