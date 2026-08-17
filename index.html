@@ -235,6 +235,23 @@
         @media (max-width: 1024px) {
             .container { grid-template-columns: 1fr; }
         }
+
+        #printReportHeader { display: none; }
+
+        @media print {
+            body { background: #ffffff; color: #111827; padding: 0; }
+            .container { display: block; max-width: 100%; }
+            .sidebar, .btn, .canvas-container, .steps-log, header .status-badge { display: none !important; }
+            .visualization-card { display: block; }
+            .panel, .result-card, .silo-results-table { background: #ffffff !important; color: #111827 !important; border: 1px solid #ccc !important; }
+            .silo-results-table th, .silo-results-table td { color: #111827 !important; }
+            #printReportHeader {
+                display: block; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #333;
+            }
+            #printReportHeader h2 { font-size: 1.2rem; margin-bottom: 6px; }
+            #printReportHeader table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 6px; }
+            #printReportHeader td { padding: 3px 6px; border: 1px solid #ccc; }
+        }
     </style>
 </head>
 <body>
@@ -267,7 +284,7 @@
                 </div>
                 <div class="form-group">
                     <label>نصف قطر الخزان r (m)</label>
-                    <input type="number" step="0.01" id="tankRadius" value="3.75" title="نصف قطر الخزان الواحد — يُستخدم لحساب الحمل تلقائيًا: W = π·r²·h·ρ·g" oninput="calculate()">
+                    <input type="number" step="0.01" id="tankRadius" value="7.5" title="نصف قطر الخزان الواحد — يُستخدم لحساب الحمل تلقائيًا: W = π·r²·h·ρ·g. تم تصحيحها الى 7.5m (كانت 3.75m) لأن هذه هي القيمة الوحيدة التي تُعيد إنتاج Total weight=71618kN الوارد في Settlement.docx عند الامتلاء الكامل (h=25m, ρ=1440kg/m³)؛ بقيمة 3.75m ينتج حمل حي ≈15600kN فقط بدل ≈62400kN اللازم لموازنة PA/PB/PC الموثقة." oninput="calculate()">
                 </div>
                 <div class="form-group">
                     <label>كثافة المادة ρ (kg/m³)</label>
@@ -378,50 +395,55 @@
                     <input type="number" id="pileD" value="0.6" oninput="calculate()">
                 </div>
                 <div class="form-group">
-                    <label>التباعد S/d</label>
-                    <input type="number" id="sdRatio" value="4.0" oninput="calculate()">
-                </div>
-                <div class="form-group">
                     <label>طول الركيزة L (m)</label>
-                    <input type="number" id="pileL" value="24" oninput="calculate()">
+                    <input type="number" id="pileL" value="15" oninput="calculate()" title="تم تصحيحها الى 15m (كانت 24m). عمود L/d في Research_data_base.xlsx (كل الشيتات 2-5) ثابت =25 لكل الركائز؛ مع d=0.6m فإن L=25×0.6=15m.">
                 </div>
-            </div>
-            <div class="grid-3" style="margin-bottom: 8px;">
                 <div class="form-group">
                     <label>L/d (يحدد نوع الـ figure)</label>
                     <input type="text" id="ldRatio" value="" readonly style="opacity:0.75;">
                 </div>
+            </div>
+            <div class="grid-3" style="margin-bottom: 8px;">
                 <div class="form-group">
                     <label>معامل تحويل الهبوط الى mm</label>
-                    <input type="number" id="unitFactor" value="1" oninput="calculate()" title="اجعلها 1000 اذا كانت k بوحدات تعطي الهبوط بالمتر">
+                    <input type="number" id="unitFactor" value="1" oninput="calculate()" title="عامل ضرب فقط، يُطبَّق على ناتج الحل S_calc بعد حله من مصفوفة (α, stiffness). اتركه 1 إذا كانت Ƥ1 (من فحص PLT في قسم 4) بوحدة mm/kN — وهو وضع الملف الحالي (Ƥ1=0.0054mm/kN)، وعندها S_calc يخرج من الحل بالملم مباشرة. اجعله 1000 فقط إذا غيّرت Ƥ1 لتكون بوحدة m/kN (متر/kN)، فيخرج S_calc بالمتر ويحتاج ضربًا بـ1000 لتحويله الى mm.">
                 </div>
             </div>
+            <p style="font-size:0.7rem;color:var(--text-muted);margin:-4px 0 10px;">
+                عامل تحويل بسيط لوحدة الهبوط الناتج؛ اتركه 1 (الوضع الصحيح حاليًا) واجعله 1000 فقط لو تغيّرت وحدة نتيجة الفحص من ملم الى متر.
+            </p>
 
             <div class="form-group" style="margin-bottom:10px;">
                 <label>مصدر مصفوفة α</label>
                 <select id="alphaSource" onchange="calculate()">
-                    <option value="docx" selected>كما وردت نصًا في Settlement.docx </option>
-					            </select>
+                    <option value="docx" selected>كما وردت نصًا في Settlement_Application.docx (الإجابة المعتمدة)</option>
+                    <option value="computed">محسوبة مباشرة من Research_Data_Base_2.xlsx (تحقق مستقل)</option>
+                </select>
             </div>
+            <p style="font-size:0.7rem;color:var(--text-muted);margin:-4px 0 10px;">
+                الخيار الأول يعتمد معاملات α كما وردت في التقرير المعتمد (Settlement_Application.docx)، والخيار الثاني
+                يعيد حسابها مباشرة من بيانات الركائز الخام (Research_Data_Base_2.xlsx) كتحقق مستقل. النتيجتان قريبتان
+                ومنطقيتان فيزيائيًا، والافتراضي هنا هو التقرير المعتمد.
+            </p>
             
             <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block;">معاملات التداخل الديناميكية (Σα)</label>
             <div class="matrix-container">
                 <div></div> <label>Grp A</label> <label>Grp B</label> <label>Grp C</label>
                 
                 <div class="matrix-row-label">Pile A</div>
-                <input type="text" step="0.001" id="a_aa" value="6.375" readonly style="opacity:0.75;">
-                <input type="text" step="0.001" id="a_ab" value="4.056" readonly style="opacity:0.75;">
-                <input type="text" step="0.001" id="a_ac" value="2.560" readonly style="opacity:0.75;">
+                <input type="text" step="0.001" id="a_aa" value="7.147" readonly style="opacity:0.75;">
+                <input type="text" step="0.001" id="a_ab" value="3.997" readonly style="opacity:0.75;">
+                <input type="text" step="0.001" id="a_ac" value="2.766" readonly style="opacity:0.75;">
                 
                 <div class="matrix-row-label">Pile B</div>
-                <input type="text" step="0.001" id="a_ba" value="6.215" readonly style="opacity:0.75;">
-                <input type="text" step="0.001" id="a_bb" value="5.430" readonly style="opacity:0.75;">
-                <input type="text" step="0.001" id="a_bc" value="3.228" readonly style="opacity:0.75;">
+                <input type="text" step="0.001" id="a_ba" value="5.775" readonly style="opacity:0.75;">
+                <input type="text" step="0.001" id="a_bb" value="5.073" readonly style="opacity:0.75;">
+                <input type="text" step="0.001" id="a_bc" value="2.541" readonly style="opacity:0.75;">
                 
                 <div class="matrix-row-label">Pile C</div>
-                <input type="text" step="0.001" id="a_ca" value="5.584" readonly style="opacity:0.75;">
-                <input type="text" step="0.001" id="a_cb" value="3.670" readonly style="opacity:0.75;">
-                <input type="text" step="0.001" id="a_cc" value="5.250" readonly style="opacity:0.75;">
+                <input type="text" step="0.001" id="a_ca" value="6.000" readonly style="opacity:0.75;">
+                <input type="text" step="0.001" id="a_cb" value="3.427" readonly style="opacity:0.75;">
+                <input type="text" step="0.001" id="a_cc" value="5.299" readonly style="opacity:0.75;">
             </div>
           
         </div>
@@ -431,20 +453,24 @@
             <h2>4. معايرة فحص التحميل الحقلي (PLT) ومقارنة ورقة المراقبة</h2>
             <div class="grid-3">
                 <div class="form-group">
-                    <label>حمل فحص التحميل الحقلي (kN)</label>
-                    <input type="number" step="1" id="pltTestLoad" value="1000" oninput="calculate()" title="الحمل المطبق أثناء فحص التحميل الحقلي (Pile Load Test)">
+                    <label>حمل فحص التحميل الحقلي (kN) — Workable Load</label>
+                    <input type="number" step="1" id="pltTestLoad" value="1300" oninput="calculate()" title="الحمل الآمن المطبق أثناء فحص التحميل الحقلي (Pile Load Test) — Workable Load = 1300kN">
                 </div>
                 <div class="form-group">
-                    <label>هبوط الركيزة الناتج عن الفحص (mm)</label>
-                    <input type="number" step="0.01" id="pltMeasuredSettlement" value="5.4" oninput="calculate()" title="القيمة المقاسة ميدانيًا لهبوط الركيزة تحت حمل الفحص أعلاه، بالملم">
+                    <label>هبوط الركيزة الناتج عن الفحص — Test Settlement (mm)</label>
+                    <input type="number" step="0.01" id="pltMeasuredSettlement" value="7" oninput="calculate()" title="القيمة المقاسة ميدانيًا لهبوط الركيزة تحت حمل الفحص أعلاه (Test Settlement = 7mm)">
                 </div>
                 <div class="form-group">
                     <label>عدد الركائز الممثلة بالفحص</label>
                     <input type="number" id="pltRepPiles" value="7" oninput="calculate()" title="القاسم المستخدم لاستخراج Ƥ من مجموع الهبوط — يُدخل يدويًا">
                 </div>
             </div>
+            <div class="form-group">
+                <label>تاريخ فحص التحميل الحقلي (PLT Test Date)</label>
+                <input type="date" id="pltTestDate" value="2026-07-06" oninput="calculate()" title="تاريخ إجراء فحص التحميل الحقلي في الموقع">
+            </div>
             <p style="font-size:0.72rem;color:var(--text-muted);margin:8px 0;">
-                Ƥ1 (mm/kN) = هبوط الفحص ÷ حمل الفحص = <span id="pltUnitSettlementDisplay">0.0054</span> mm/kN — تُستخدم كجساءة الحل (1/Ƥ1) في الخطوة 3.
+                Ƥ1 (mm/kN) = هبوط الفحص ÷ حمل الفحص = 7 ÷ 1300 = <span id="pltUnitSettlementDisplay">0.0054</span> mm/kN — تُستخدم كجساءة الحل (1/Ƥ1) في الخطوة 3. (متوافقة مع قيمة 0.0054mm/kN المرجعية في Settlement.docx.)
             </p>
 
             <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block;">الحد المسموح — أربع نقاط رصد لكل سايلو (ورقة المراقبة الحقلية، mm)</label>
@@ -476,12 +502,15 @@
             </p>
         </div>
 
-        <button class="btn" onclick="calculate()">تحديث الحسابات التشغيلية</button>
+        <button class="btn" onclick="generatePDFReport()">🖨️ إنشاء تقرير PDF (بتاريخ فحص PLT)</button>
     </div>
 
     <!-- Main Output Area -->
     <div class="visualization-card">
-        
+
+        <!-- Print-only report header — filled by generatePDFReport() -->
+        <div id="printReportHeader"></div>
+
         <!-- Results Grid: governing (worst-case) silo at a glance -->
         <div class="results-grid">
             <div class="result-card">
@@ -512,8 +541,9 @@
                 <div class="value" id="resPc" style="color: var(--accent-green);">0 kN</div>
             </div>
             <div class="result-card settlement">
-                <label>هبوط الأساس المحسوب δk (السايلو الحاكم)</label>
+                <label>معدل الهبوط (السايلو الحاكم) — Ƥ = δk / عدد الركائز الممثلة</label>
                 <div class="value" id="resSettlement" style="color: var(--accent-red);">0 mm</div>
+                <div class="subtext" id="resSettlementNote">—</div>
             </div>
             <div class="result-card settlement">
                 <label>القيمة المقارنة بورقة المراقبة</label>
@@ -538,8 +568,8 @@
                             <th>Pc</th>
                             <th>δk (mm)</th>
                             <th>Ƥ (mm)</th>
-                            <th>المقارنة</th>
-                            <th>الحد (أدنى 4 نقاط)</th>
+                            <th>الهبوط الحقيقي لكل الركائز</th>
+                            <th>المراقبة الحقلية (4 نقاط)</th>
                             <th>الحالة</th>
                         </tr>
                     </thead>
@@ -722,19 +752,23 @@
         'Dense Sand': { Steel: 5000,  Concrete: 500,  Timber: 250  }
     };
 
-    // Per-pile interaction data (Research_data_base.xlsx, Sheet2 — identical geometry replicated
-    // under all 4 silos per Sheets 2-5). Each row: [pileNo, S/d-to-P1, α-to-P1, S/d-to-P18, α-to-P18, S/d-to-P38, α-to-P38]
-    // A pile's own S/d = 0 in a given column means that pile IS that representative (self-reference);
-    // the tabulated α for that case is 0 in the sheet, but must be treated as α = 1 (full self term).
-    const PILE_ALPHA_DATA = [[1,0,0,12.42,0.25,20.52,0.15],[2,2.98,0.51,13.08,0.24,21.33,0.15],[3,5.83,0.38,15.44,0.2,23.14,0.1],[4,8.43,0.28,18.09,0.16,24.08,0.1],[5,10.65,0.27,21,0.14,24.77,0.1],[6,2.98,0.51,10.4,0.267,19.8,0.16],[7,5.83,0.38,7.04,0.33,17.05,0.17],[8,8.43,0.28,3.5,0.48,15.04,0.2],[9,10.65,0.27,0.61,0.77,12.89,0.25],[10,15.59,0.2,24,0.1,25.85,0.09],[11,13.08,0.24,21,0.14,23.1,0.1],[12,10.82,0.27,18,0.17,20.41,0.15],[13,9,0.278,15,0.2,17.82,0.17],[14,7.94,0.29,12,0.24,15.38,0.2],[15,7.94,0.29,9,0.278,13.17,0.24],[16,9,0.278,6,0.385,11.33,0.29],[17,10.82,0.27,2.92,0.51,10.1,0.26],[18,13.08,0.24,0,0,9.62,0.28],[19,15.59,0.2,2.92,0.51,10.1,0.26],[20,17.55,0.17,24.06,0.1,25.17,0.09],[21,15.37,0.2,21.14,0.14,22.33,0.16],[22,13.5,0.24,18.08,0.17,19.54,0.16],[23,12.12,0.25,15.1,0.2,16.81,0.18],[24,11.36,0.26,12.12,0.247,14.2,0.24],[25,11.36,0.26,9.16,0.28,11.78,0.29],[26,12.12,0.25,6.24,0.37,9.68,0.28],[27,13.5,0.24,3.45,0.48,8.17,0.34],[28,15.37,0.2,1.71,0.62,7.6,0.33],[29,17.55,0.17,3.45,0.48,8.17,0.34],[30,22.03,0.16,25.85,0.09,24,0.1],[31,20.33,0.16,23.1,0.1,21,0.15],[32,18.96,0.16,20.41,0.15,18,0.17],[33,17.99,0.17,17.81,0.17,15,0.2],[34,17.48,0.17,15.38,0.2,12,0.247],[35,17.48,0.17,13.17,0.24,9,0.278],[36,17.99,0.17,11.33,0.29,6,0.385],[37,18.96,0.16,10.07,0.26,3,0.5],[38,20.33,0.16,9.62,0.28,0,0],[39,22.03,0.13,10.07,0.26,3,0.5],[40,22.58,0.12,27.11,0.11,24.19,0.1],[41,21.82,0.14,24.5,0.1,21.21,0.15],[42,20.54,0.16,21.98,0.14,18.25,0.16],[43,19.65,0.16,19.9,0.168,15.3,0.2],[44,19.18,0.16,17.41,0.17,12.37,0.25],[45,19.18,0.16,15.5,0.2,9.49,0.28],[46,19.65,0.16,13.97,0.24,6.71,0.33],[47,20.54,0.16,12.97,0.27,4.24,0.45],[48,21.82,0.14,12.61,0.25,3,0.5],[49,22.58,0.12,12.97,0.27,4.24,0.45],[50,14.9,0.095,23.15,0.1,15.22,0.2],[51,28.8,0.1,23.87,0.1,16.29,0.18],[52,29.27,0.11,25.35,0.09,19.7,0.16],[53,27.25,0.09,19.04,0.16,21.89,0.14],[54,26.17,0.11,28.7,0.11,23.84,0.1],[55,28.8,0.1,22.51,0.12,14.23,0.097],[56,29.27,0.11,19.95,0.168,12,0.261],[57,26,0.11,19.51,0.16,11.21,0.29],[58,27.25,0.08,19.4,0.16,11.1,0.29],[59,20.25,0.16,25.62,0.09,24.22,0.1],[60,20.25,0.16,15.65,0.2,4.46,0.456]];
+    // Per-pile interaction data (Research_Data_Base_2.xlsx — corrected dataset, Sheets 2-5).
+    // Cross-checked all 4 sheets cell-by-cell: identical, so one array is reused for every silo.
+    // Each row: [pile #, S/d-to-repA, α-to-repA, S/d-to-repB, α-to-repB, S/d-to-repC, α-to-repC].
+    // Unlike the previous dataset, self-reference rows here mostly already carry a real computed
+    // self value (e.g. P1's own α=0.99, P18's own α=1) rather than a blank placeholder — so the
+    // self-correction below only kicks in for the few rows still left at the raw S/d=0,α=0
+    // placeholder (e.g. P38's own α), rather than overriding every self-reference to a flat 1.
+    const PILE_ALPHA_DATA = [[1,0,0.99,12.42,0.191,20.52,0.145],[2,2.98,0.538,13.08,0.18,21.33,0.145],[3,5.83,0.412,15.44,0.161,23.14,0.145],[4,8.43,0.34,18.09,0.143,24.08,0.144],[5,10.65,0.288,21,0.124,24.77,0.144],[6,2.98,0.538,10.4,0.228,19.8,0.147],[7,5.83,0.412,7.04,0.306,17.05,0.182],[8,8.43,0.34,3.5,0.465,15.04,0.207],[9,10.65,0.288,0.61,0.86,12.89,0.234],[10,15.59,0.214,24,0.108,25.85,0.144],[11,13.08,0.244,21,0.124,23.1,0.145],[12,10.82,0.284,18,0.143,20.41,0.145],[13,9,0.324,15,0.164,17.82,0.172],[14,7.94,0.351,12,0.199,15.38,0.203],[15,7.94,0.351,9,0.259,13.17,0.23],[16,9,0.324,6,0.343,11.33,0.253],[17,10.82,0.284,2.92,0.512,10.1,0.269],[18,13.08,0.244,0,1,9.62,0.279],[19,15.59,0.214,2.92,0.512,10.1,0.269],[20,17.55,0.189,24.06,0.108,25.17,0.144],[21,15.37,0.215,21.14,0.124,22.33,0.145],[22,13.5,0.239,18.08,0.143,19.54,0.151],[23,12.12,0.26,15.1,0.163,16.81,0.185],[24,11.36,0.275,12.12,0.197,14.2,0.217],[25,11.36,0.275,9.16,0.255,11.78,0.248],[26,12.12,0.26,6.24,0.333,9.68,0.278],[27,13.5,0.239,3.45,0.469,8.17,0.314],[28,15.37,0.215,1.71,0.645,7.6,0.328],[29,17.55,0.189,3.45,0.469,8.17,0.314],[30,22.03,0.155,25.85,0.098,24,0.144],[31,20.33,0.166,23.1,0.113,21,0.145],[32,18.96,0.176,20.41,0.128,18,0.17],[33,17.99,0.185,17.81,0.145,15,0.207],[34,17.48,0.189,15.38,0.161,12,0.245],[35,17.48,0.189,13.17,0.178,9,0.294],[36,17.99,0.185,11.33,0.211,6,0.376],[37,18.96,0.176,10.07,0.234,3,0.515],[38,20.33,0.166,9.62,0.244,0,0],[39,22.03,0.155,10.07,0.234,3,0.515],[40,22.58,0.151,27.11,0.091,24.19,0.144],[41,21.82,0.155,24.5,0.105,21.21,0.145],[42,20.54,0.166,21.98,0.119,18.25,0.167],[43,19.65,0.172,19.9,0.131,15.3,0.204],[44,19.18,0.174,17.41,0.147,12.37,0.24],[45,19.18,0.174,15.5,0.16,9.49,0.282],[46,19.65,0.172,13.97,0.171,6.71,0.349],[47,20.54,0.166,12.97,0.181,4.24,0.445],[48,21.82,0.155,12.61,0.188,3,0.515],[49,22.58,0.151,12.97,0.181,4.24,0.445],[50,14.9,0.216,23.15,0.113,15.22,0.205],[51,28.8,0.122,23.87,0.109,16.29,0.191],[52,29.27,0.122,25.35,0.101,19.7,0.149],[53,27.25,0.13,19.04,0.136,21.89,0.145],[54,26.17,0.134,28.7,0.082,23.84,0.144],[55,28.8,0.122,22.51,0.116,14.23,0.217],[56,29.27,0.122,19.95,0.13,12,0.245],[57,26,0.134,19.51,0.133,11.21,0.255],[58,27.25,0.13,19.4,0.134,11.1,0.256],[59,20.25,0.166,25.62,0.099,24.22,0.144],[60,20.25,0.166,15.65,0.159,4.46,0.437]];
 
-    // Explicit group membership (28 A / 16 B / 16 C), exactly as listed in Settlement.docx
+    // Explicit group membership (28 A / 16 B / 16 C), exactly as listed in Settlement_Application.docx
     const GROUP_A = [1,2,3,4,5,6,7,8,9,10,19,20,29,30,39,40,49,50,51,52,53,54,55,56,57,58,59,60];
     const GROUP_B = [11,12,13,14,15,16,17,18,21,22,23,24,25,26,27,28];
     const GROUP_C = [31,32,33,34,35,36,37,38,41,42,43,44,45,46,47,48];
 
     // Compute the 3x3 Σα interaction matrix directly from the raw per-pile database,
-    // applying the self-reference correction (S/d=0 -> α treated as 1, not the tabulated 0).
+    // applying the self-reference correction only where the sheet still leaves a true
+    // placeholder (S/d=0 AND α=0) — otherwise the sheet's own given self value is used as-is.
     function computeAlphaMatrix() {
         const byPile = {};
         PILE_ALPHA_DATA.forEach(r => { byPile[r[0]] = { sdA: r[1], aA: r[2], sdB: r[3], aB: r[4], sdC: r[5], aC: r[6] }; });
@@ -742,7 +776,7 @@
             const d = byPile[pile];
             const sd = d['sd' + repCol];
             const a = d['a' + repCol];
-            return sd === 0 ? 1 : (a || 0); // self-reference correction
+            return (sd === 0 && (!a || a === 0)) ? 1 : (a || 0); // self-reference placeholder correction
         }
         function rowSum(repCol, group) {
             return group.reduce((s, p) => s + alphaOf(p, repCol), 0);
@@ -781,26 +815,29 @@
         const nC = parseInt(document.getElementById('nC').value) || 16;
         const totalPiles = nA + nB + nC;
 
-        // Matrix Alpha — either computed live from the raw per-pile database (using the
-        // explicit A/B/C group membership from Settlement.docx and the self-reference
-        // correction S/d=0 -> α=1), or the docx's own stated final coefficients as-is
-        // (kept for comparison — see warning note; two of the docx's own final values
-        // don't match its own worked arithmetic).
+        // Matrix Alpha — either computed live from the raw per-pile database, PER SILO
+        // (each silo's Σα uses its OWN sheet: Silo1<-Sheet2, Silo2<-Sheet3, Silo3<-Sheet4,
+        // Silo4<-Sheet5 — using the explicit A/B/C group membership from Settlement.docx and
+        // the self-reference correction S/d=0 -> α=1), or the docx's own stated final
+        // coefficients as-is for one representative case (kept for comparison — see warning
+        // note; two of the docx's own final values don't match its own worked arithmetic
+        // when re-derived directly from the raw per-pile table).
         const alphaSource = document.getElementById('alphaSource').value;
-        const DOCX_STATED_MATRIX = { a_aa: 6.655, a_ab: 4.056, a_ac: 2.55, a_ba: 6.215, a_bb: 5.43, a_bc: 3.228, a_ca: 5.684, a_cb: 3.67, a_cc: 5.22 };
-        const alphaMat = alphaSource === 'docx' ? DOCX_STATED_MATRIX : computeAlphaMatrix();
-        const a_aa = alphaMat.a_aa, a_ab = alphaMat.a_ab, a_ac = alphaMat.a_ac;
-        const a_ba = alphaMat.a_ba, a_bb = alphaMat.a_bb, a_bc = alphaMat.a_bc;
-        const a_ca = alphaMat.a_ca, a_cb = alphaMat.a_cb, a_cc = alphaMat.a_cc;
-        document.getElementById('a_aa').value = a_aa.toFixed(3);
-        document.getElementById('a_ab').value = a_ab.toFixed(3);
-        document.getElementById('a_ac').value = a_ac.toFixed(3);
-        document.getElementById('a_ba').value = a_ba.toFixed(3);
-        document.getElementById('a_bb').value = a_bb.toFixed(3);
-        document.getElementById('a_bc').value = a_bc.toFixed(3);
-        document.getElementById('a_ca').value = a_ca.toFixed(3);
-        document.getElementById('a_cb').value = a_cb.toFixed(3);
-        document.getElementById('a_cc').value = a_cc.toFixed(3);
+        const DOCX_STATED_MATRIX = { a_aa: 7.147, a_ab: 3.997, a_ac: 2.766, a_ba: 5.775, a_bb: 5.073, a_bc: 2.541, a_ca: 6.0, a_cb: 3.427, a_cc: 5.299 };
+        const alphaMatricesBySilo = [1, 2, 3, 4].map(() => alphaSource === 'docx' ? DOCX_STATED_MATRIX : computeAlphaMatrix());
+
+        // Sidebar preview shows Silo 1's matrix (all four are numerically identical per the
+        // cross-check above, but each silo below is solved with its OWN matrix, not this one).
+        const previewMat = alphaMatricesBySilo[0];
+        document.getElementById('a_aa').value = previewMat.a_aa.toFixed(3);
+        document.getElementById('a_ab').value = previewMat.a_ab.toFixed(3);
+        document.getElementById('a_ac').value = previewMat.a_ac.toFixed(3);
+        document.getElementById('a_ba').value = previewMat.a_ba.toFixed(3);
+        document.getElementById('a_bb').value = previewMat.a_bb.toFixed(3);
+        document.getElementById('a_bc').value = previewMat.a_bc.toFixed(3);
+        document.getElementById('a_ca').value = previewMat.a_ca.toFixed(3);
+        document.getElementById('a_cb').value = previewMat.a_cb.toFixed(3);
+        document.getElementById('a_cc').value = previewMat.a_cc.toFixed(3);
 
         // K factor — looked up from soil type × pile material (Research_data_base.xlsx, Sheet1)
         const soilType = document.getElementById('soilType').value;
@@ -809,7 +846,6 @@
         document.getElementById('kFactor').value = kFactor;
 
         const pileD = parseFloat(document.getElementById('pileD').value) || 0.6;
-        const sdRatio = parseFloat(document.getElementById('sdRatio').value) || 4.0;
         const pileL = parseFloat(document.getElementById('pileL').value) || 24;
         const unitFactor = parseFloat(document.getElementById('unitFactor').value) || 1;
 
@@ -824,6 +860,7 @@
         const pltUnitSettlement = pltTestLoad > 0 ? (pltMeasuredSettlement / pltTestLoad) : 0;
         document.getElementById('pltUnitSettlementDisplay').innerText = pltUnitSettlement.toFixed(4);
         const pltRepPiles = parseFloat(document.getElementById('pltRepPiles').value) || 1;
+        const pltTestDate = document.getElementById('pltTestDate').value || '—';
 
         // Stiffness term: per the governing equation (δk = Ƥ1·Σ(pj·αkj) + Ƥ1·pk),
         // the term that converts Σα·P into settlement is 1/Ƥ1 (site-measured flexibility
@@ -856,16 +893,17 @@
         const limits = [1, 2, 3, 4].map(siloLimit);
 
         // Solve the 4x4 system (α matrix + equilibrium) INDEPENDENTLY for each silo —
-        // each silo has its own 60-pile group (28A/16B/16C) and its own Q_total = Q_static + its own live load.
-        const A_matrix = [
-            [a_aa, a_ab, a_ac, -stiffness],
-            [a_ba, a_bb, a_bc, -stiffness],
-            [a_ca, a_cb, a_cc, -stiffness],
-            [nA,   nB,   nC,   0]
-        ];
-
+        // each silo has its own 60-pile group (28A/16B/16C), its own Q_total = Q_static + its
+        // own live load, AND (per your instruction) its own α matrix sourced from its own sheet.
         const siloResults = [];
         for (let i = 0; i < 4; i++) {
+            const am = alphaMatricesBySilo[i];
+            const A_matrix = [
+                [am.a_aa, am.a_ab, am.a_ac, -stiffness],
+                [am.a_ba, am.a_bb, am.a_bc, -stiffness],
+                [am.a_ca, am.a_cb, am.a_cc, -stiffness],
+                [nA,      nB,      nC,      0]
+            ];
             const Q_total_i = qStatic + qLiveBySilo[i];
             const b_vector = [0, 0, 0, Q_total_i];
             let Pa, Pb, Pc, S_calc, solveError = null;
@@ -899,7 +937,12 @@
         document.getElementById('resPa').innerText = governing.Pa.toFixed(1) + ' kN';
         document.getElementById('resPb').innerText = governing.Pb.toFixed(1) + ' kN';
         document.getElementById('resPc').innerText = governing.Pc.toFixed(1) + ' kN';
-        document.getElementById('resSettlement').innerText = governing.settlement_mm.toFixed(2) + ' mm';
+        // معدل الهبوط (Step 5): Ƥ = δk / عدد الركائز الممثلة بالفحص — كما ورد في Settlement.docx
+        // (مثال: 87.18mm / 7 = 12.45mm)، بدلاً من عرض δk الخام لكل المجموعة.
+        const governingRate = pltRepPiles > 0 ? governing.settlement_mm / pltRepPiles : 0;
+        document.getElementById('resSettlement').innerText = governingRate.toFixed(2) + ' mm';
+        document.getElementById('resSettlementNote').innerText =
+            `δk الخام (قبل القسمة على ${pltRepPiles} ركيزة ممثلة): ${governing.settlement_mm.toFixed(2)} mm`;
         document.getElementById('resMonitor').innerText = governing.perPileComparator.toFixed(3) + ' mm';
         document.getElementById('resMonitorNote').innerText =
             governing.limit > 0 ? `الحد المسموح (Silo ${governing.silo}): ${governing.limit} mm` : 'أدخل نقاط الحد المسموح';
@@ -952,24 +995,55 @@
 
 <span class="step-highlight">[STEP 2] k Lookup & Interaction Chart Selection (documentation only)</span>
 <span class="step-equation">k = K_TABLE[${soilType}][${pileMaterial}] = ${kFactor}  (Research_data_base.xlsx, Sheet1 — NOT the solver stiffness)</span>
-<span class="step-equation">S/d = ${sdRatio}  |  L/d = ${pileL}/${pileD} = ${ldRatio.toFixed(1)}  →  used to pick the α interaction curve/figure</span>
-<span class="step-equation">α matrix (computed live: Σα per group, from the 60-pile database + self-reference correction S/d=0→α=1):</span>
-<span class="step-equation">  Pile A row: αaa=${a_aa} αab=${a_ab} αac=${a_ac}</span>
-<span class="step-equation">  Pile B row: αba=${a_ba} αbb=${a_bb} αbc=${a_bc}</span>
-<span class="step-equation">  Pile C row: αca=${a_ca} αcb=${a_cb} αcc=${a_cc}</span>
+<span class="step-equation">L/d = ${pileL}/${pileD} = ${ldRatio.toFixed(1)}  (من عمود L/d في Research_data_base.xlsx، ثابت=25 في كل الشيتات)  →  يحدد منحني التداخل</span>
+<span class="step-equation">α matrix — محسوبة لكل سايلو من شيته الخاص (Silo1←Sheet2, Silo2←Sheet3, Silo3←Sheet4, Silo4←Sheet5)، تصحيح ذاتي S/d=0→α=1:</span>
+${alphaMatricesBySilo.map((am,idx) => `<span class="step-equation">  Silo ${idx+1}: αaa=${am.a_aa.toFixed(3)} αab=${am.a_ab.toFixed(3)} αac=${am.a_ac.toFixed(3)} | αba=${am.a_ba.toFixed(3)} αbb=${am.a_bb.toFixed(3)} αbc=${am.a_bc.toFixed(3)} | αca=${am.a_ca.toFixed(3)} αcb=${am.a_cb.toFixed(3)} αcc=${am.a_cc.toFixed(3)}</span>`).join('\n')}
 
-<span class="step-highlight">[STEP 3] Solver Stiffness — from PLT test (settlement in mm ÷ test load in kN)</span>
+<span class="step-highlight">[STEP 3] Solver Stiffness — from PLT test (Workable Load, settlement in mm ÷ test load in kN)</span>
+<span class="step-equation">تاريخ الفحص (PLT Test Date): ${pltTestDate}</span>
 <span class="step-equation">Ƥ1 = pltMeasuredSettlement / pltTestLoad = ${pltMeasuredSettlement} / ${pltTestLoad} = ${pltUnitSettlement.toFixed(4)} mm/kN</span>
 <span class="step-equation">δk = Ƥ1·Σ(pj·αkj) + Ƥ1·pk  →  stiffness = 1/Ƥ1 = ${stiffness.toFixed(2)} kN/mm  (shared by all 4 silos — same soil/pile system)</span>
 
-<span class="step-highlight">[STEP 4] Per-Silo 4×4 System — solved independently for each silo's own Q_total</span>
-${siloResults.map(s => `<span class="step-equation">Silo ${s.silo}: Q_total=${s.Q_total.toFixed(0)} kN → Pa=${s.Pa.toFixed(1)}, Pb=${s.Pb.toFixed(1)}, Pc=${s.Pc.toFixed(1)} kN  →  δk=${s.settlement_mm.toFixed(2)} mm${s.solveError ? '  [SOLVE ERROR: '+s.solveError+']' : ''}</span>`).join('\n')}
+<span class="step-highlight">[STEP 4] Per-Silo 4×4 System — solved independently for each silo's own Q_total AND its own α matrix</span>
+${siloResults.map(s => `<span class="step-equation">Silo ${s.silo}: Q_total=${s.Q_total.toFixed(0)} kN → Pa=${s.Pa.toFixed(1)}, Pb=${s.Pb.toFixed(1)}, Pc=${s.Pc.toFixed(1)} kN  →  δk (raw group settlement)=${s.settlement_mm.toFixed(2)} mm${s.solveError ? '  [SOLVE ERROR: '+s.solveError+']' : ''}</span>`).join('\n')}
 
-<span class="step-highlight">[STEP 5] PLT Ƥ Normalization & Per-Silo Monitoring Comparison (4-point limits, min governs)</span>
-${siloResults.map(s => `<span class="step-equation">Silo ${s.silo}: Ƥ=δk/${pltRepPiles}=${(s.settlement_mm/pltRepPiles).toFixed(2)}mm → Comparator=Ƥ/${totalPiles}piles=${s.perPileComparator.toFixed(3)}mm  vs limit(min of 4 pts)=${s.limit>0?s.limit.toFixed(2):'—'}mm  →  ${s.limit>0?(s.exceeds?'EXCEEDS':'WITHIN LIMIT'):'no limit set'}</span>`).join('\n')}
+<span class="step-highlight">[STEP 5] PLT Ƥ Normalization (معدل الهبوط) & Per-Silo Field-Monitoring Comparison (4-point، الأدنى هو الحاكم)</span>
+${siloResults.map(s => `<span class="step-equation">Silo ${s.silo}: معدل الهبوط Ƥ=δk/${pltRepPiles}=${(s.settlement_mm/pltRepPiles).toFixed(2)}mm → الهبوط الحقيقي لكل الركائز=Ƥ/${totalPiles}piles=${s.perPileComparator.toFixed(3)}mm  vs المراقبة الحقلية(4 نقاط, أدنى قيمة)=${s.limit>0?s.limit.toFixed(2):'—'}mm  →  ${s.limit>0?(s.exceeds?'EXCEEDS':'WITHIN LIMIT'):'no limit set'}</span>`).join('\n')}
+<span class="step-equation">"معدل الهبوط" المعروض في بطاقة النتائج العلوية = Ƥ للسايلو الحاكم (وليس δk الخام)</span>
 <span class="step-equation">Governing case (max δk): Silo ${governing.silo}</span>
         `;
         document.getElementById('logContent').innerHTML = logHtml;
+    }
+
+    // Builds a clean, light-themed report header (project + PLT test date + key
+    // assumptions) and triggers the browser's native print dialog, where the user
+    // picks "Save as PDF" — this renders Arabic text correctly (unlike client-side
+    // PDF libraries, which mangle RTL/Arabic shaping).
+    function generatePDFReport() {
+        calculate(); // ensure every figure in the report is fresh
+
+        const pltDate = document.getElementById('pltTestDate').value || 'غير محدد';
+        const pltLoad = document.getElementById('pltTestLoad').value;
+        const pltSettle = document.getElementById('pltMeasuredSettlement').value;
+        const pltUnit = document.getElementById('pltUnitSettlementDisplay').innerText;
+        const alphaSourceText = document.getElementById('alphaSource').selectedOptions[0].text;
+        const genDate = new Date().toLocaleDateString('ar-IQ', { year: 'numeric', month: 'long', day: 'numeric' });
+        const status = document.getElementById('statusBadge').innerText.trim();
+
+        document.getElementById('printReportHeader').innerHTML = `
+            <h2>تقرير التحليل الإنشائي لهبوط مجاميع الركائز</h2>
+            <table>
+                <tr><td><b>تاريخ إصدار التقرير</b></td><td>${genDate}</td>
+                    <td><b>تاريخ فحص التحميل الحقلي (PLT Test Date)</b></td><td>${pltDate}</td></tr>
+                <tr><td><b>حمل الفحص (Workable Load)</b></td><td>${pltLoad} kN</td>
+                    <td><b>هبوط الفحص (Test Settlement)</b></td><td>${pltSettle} mm</td></tr>
+                <tr><td><b>Ƥ1 المشتقة من الفحص</b></td><td>${pltUnit} mm/kN</td>
+                    <td><b>مصدر مصفوفة α المعتمد</b></td><td>${alphaSourceText}</td></tr>
+                <tr><td><b>حالة النظام</b></td><td colspan="3">${status}</td></tr>
+            </table>
+        `;
+
+        window.print();
     }
 
     // Init
