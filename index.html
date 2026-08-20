@@ -490,11 +490,7 @@
                 </div>
                 <div class="form-group">
                     <label>عدد الركائز الممثلة بالفحص</label>
-                    <input type="number" id="pltRepPiles" value="7" oninput="calculate()" title="غير مستخدم في معادلة الهبوط العملي الحالية (Method 1) — محتفظ به كحقل مرجعي فقط.">
-                </div>
-                <div class="form-group">
-                    <label>C_stiff — معامل تصحيح اللاخطية (Method 1)</label>
-                    <input type="number" step="0.01" id="cStiff" value="0.75" oninput="calculate()" title="Non-linear soil stiffness correction factor، كما ورد في Practical Settlement.docx (Cstiff ≈ 0.75)">
+                    <input type="number" id="pltRepPiles" value="7" oninput="calculate()" title="القاسم المستخدم لاستخراج Ƥ من مجموع الهبوط — يُدخل يدويًا">
                 </div>
             </div>
             <div class="form-group">
@@ -505,7 +501,15 @@
                 Ƥ1 (mm/kN) = هبوط الفحص ÷ حمل الفحص = 7 ÷ 1300 = <span id="pltUnitSettlementDisplay">0.0054</span> mm/kN — تُستخدم كجساءة الحل (1/Ƥ1) في الخطوة 3. (متوافقة مع قيمة 0.0054mm/kN المرجعية في Settlement.docx.)
             </p>
 
-            <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block;">الحد المسموح — أربع نقاط رصد لكل سايلو (ورقة المراقبة الحقلية، mm)</label>
+            <div class="form-group">
+                <label>C stiff — معامل تصحيح اللاخطية للتربة (Practical_Settlement.docx, Method 1)</label>
+                <input type="number" step="0.01" id="cStiff" value="0.75" oninput="calculate()" title="قيمة تجريبية (≈0.75) واردة في Practical_Settlement.docx بدون اشتقاق أو مصدر موثق لها — تحتاج تأكيد من المهندس الجيوتقني المسؤول قبل الاعتماد النهائي على S practical.">
+            </div>
+            <p style="font-size:0.7rem;color:var(--text-muted);margin:-4px 0 10px;">
+                ⚠ قيمة تجريبية (empirical) فقط، غير مشتقة رياضيًا في المصدر — راجعها مع المهندس الجيوتقني قبل الاعتماد عليها في القرار النهائي.
+            </p>
+
+            <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; display: block;">القراءة الحقلية الفعلية (مساحة/Total Station) — أربع نقاط رصد لكل سايلو، mm</label>
             <div class="silo-limits-grid">
                 <div></div><label>P1</label><label>P2</label><label>P3</label><label>P4</label>
                 <div class="matrix-row-label">Silo 1</div>
@@ -533,7 +537,8 @@
 
         <button class="btn" onclick="generatePDFReport()">🖨️ إنشاء تقرير PDF (بتاريخ فحص الهبوط)</button>
         <p style="font-size:0.7rem;color:var(--text-muted);margin:6px 0 0;">
-            يُقارن الهبوط المحسوب لكل سايلو بأعلى قيمة (الأكثر تحفظًا) من نقاطه الأربع، مطابقةً لبنية Sheet_for_monitaring_system.xlsx.
+            الحد الأقصى المسموح لكل سايلو = S practical (Method 1، Practical_Settlement.docx). القراءة الحقلية الحاكمة
+            (أعلى قيمة من النقاط الأربع) تُقارن بـ S practical؛ تجاوزها يُصدر إنذار (ALARM).
         </p>
     </div>
 
@@ -573,12 +578,12 @@
                 <div class="value" id="resPc" style="color: var(--accent-green);">0 kN</div>
             </div>
             <div class="result-card settlement">
-                <label>الهبوط العملي S_practical (السايلو الحاكم) — Method 1</label>
-                <div class="value" id="resSettlement" style="color: var(--accent-red);">0 mm</div>
+                <label>S practical (السايلو الحاكم) — أعلى هبوط مسموح، Method 1</label>
+                <div class="value" id="resSettlement" style="color: var(--accent-amber);">0 mm</div>
                 <div class="subtext" id="resSettlementNote">—</div>
             </div>
             <div class="result-card settlement">
-                <label>القيمة المقارنة بورقة المراقبة (S_practical)</label>
+                <label>القراءة الحقلية الحاكمة vs S practical</label>
                 <div class="value" id="resMonitor" style="color: var(--accent-red);">0 mm</div>
                 <div class="subtext" id="resMonitorNote">—</div>
             </div>
@@ -598,11 +603,10 @@
                             <th>Pa</th>
                             <th>Pb</th>
                             <th>Pc</th>
-                            <th>δk (mm)</th>
-                            <th>Rs (عدد مرات، بلا وحدة)</th>
-                            <th>ζpile</th>
-                            <th>S_practical (mm)</th>
-                            <th>المراقبة الحقلية (4 نقاط)</th>
+                            <th>S group=δk (mm)</th>
+                            <th>ζ pile</th>
+                            <th>S practical (mm)</th>
+                            <th>القراءة الحقلية (mm)</th>
                             <th>الحالة</th>
                         </tr>
                     </thead>
@@ -892,11 +896,8 @@
         const pltMeasuredSettlement = parseFloat(document.getElementById('pltMeasuredSettlement').value) || 0;
         const pltUnitSettlement = pltTestLoad > 0 ? (pltMeasuredSettlement / pltTestLoad) : 0;
         document.getElementById('pltUnitSettlementDisplay').innerText = pltUnitSettlement.toFixed(4);
-        const pltRepPiles = parseFloat(document.getElementById('pltRepPiles').value) || 1; // مرجعي فقط — غير مستخدم في S_practical
+        const pltRepPiles = parseFloat(document.getElementById('pltRepPiles').value) || 1;
         const pltTestDate = document.getElementById('pltTestDate').value || '—';
-        const cStiff = parseFloat(document.getElementById('cStiff').value) || 0.75;
-        // ws = هبوط الركيزة المفردة المقاس بفحص PLT (mm) — يُستخدم كأساس نسبة Rs في Method 1
-        const ws_single = pltMeasuredSettlement;
 
         // Stiffness term: per the governing equation (δk = Ƥ1·Σ(pj·αkj) + Ƥ1·pk),
         // the term that converts Σα·P into settlement is 1/Ƥ1 (site-measured flexibility
@@ -920,13 +921,17 @@
         document.getElementById('loadT4').innerText = qLiveT4.toFixed(0) + ' kN';
         document.getElementById('resQLive').innerText = TotalLiveLoad.toFixed(0) + ' kN';
 
-        // Per-silo monitoring limits (4 points each) — governing limit = max of the 4 (most conservative, per Sheet_for_monitaring_system.xlsx)
-        function siloLimit(i) {
+        // Per-silo ACTUAL field-measured settlement (4 survey points each) — governing
+        // reading = max of the 4 (worst observed point), per Sheet_for_monitaring_system.xlsx.
+        // These are readings from the total station survey, NOT an allowed limit — the
+        // allowed limit is now S practical, computed below per Practical_Settlement.docx.
+        function siloFieldReading(i) {
             const pts = [1, 2, 3, 4].map(p => parseFloat(document.getElementById(`limS${i}P${p}`).value) || 0)
                                      .filter(v => v > 0);
             return pts.length ? Math.max(...pts) : 0;
         }
-        const limits = [1, 2, 3, 4].map(siloLimit);
+        const fieldReadings = [1, 2, 3, 4].map(siloFieldReading);
+        const cStiff = parseFloat(document.getElementById('cStiff').value) || 0;
 
         // Solve the 4x4 system (α matrix + equilibrium) INDEPENDENTLY for each silo —
         // each silo has its own 60-pile group (28A/16B/16C), its own Q_total = Q_static + its
@@ -949,20 +954,37 @@
                 solveError = e.message;
                 Pa = Pb = Pc = S_calc = 0;
             }
-            const settlement_mm = S_calc * unitFactor; // δk الخام لهذا السايلو (raw group settlement)
+            const settlement_mm = S_calc * unitFactor; // S_group = raw δk for this silo (mm)
 
-            // ---- Practical Settlement — Method 1 (Adjusted Settlement Ratio Approach) ----
-            // من Practical Settlement.docx:
-            //   S_practical = ws · (Rs · ζpile · Cstiff)
-            //   Rs     = S_group / S_single = δk / ws           → نسبة بحتة (عدد مرات)، بلا وحدة
-            //   ζpile  = P_piles / P_total = (Pa + Pb) / Q_total → كسر الحمل الذي تحمله الركائز فعليًا
-            //   Cstiff = معامل تصحيح اللاخطية (مُدخل، افتراضي 0.75)
-            const Rs = ws_single > 0 ? (settlement_mm / ws_single) : 0; // بلا وحدة — نسبة/عدد مرات
-            const zetaPile = Q_total_i > 0 ? ((Pa + Pb) / Q_total_i) : 0; // بلا وحدة — كسر
-            const practicalSettlement = ws_single * (Rs * zetaPile * cStiff); // mm — القيمة الحقيقية القابلة للمقارنة
+            // ── S practical (Practical_Settlement.docx, Method 1 — "Adjusted Settlement
+            //    Ratio Approach"). This REPLACES the old ad-hoc δk÷pltRepPiles÷totalPiles
+            //    comparator, which had no derivation from The_equation.docx and produced
+            //    false "critical" results (1.524mm at 100% fill, 0.329mm even at 10% fill,
+            //    vs a 0.25mm limit) whenever the intermediate ÷pltRepPiles step was dropped.
+            //
+            //    S practical = ws · (Rs · ζpile · Cstiff), where:
+            //      ws     = single-pile PLT settlement (mm) = pltMeasuredSettlement
+            //      Rs     = S_group / ws            (settlement ratio, docx: 91/7 = 13.0)
+            //      ζpile  = (Pa+Pb) / (Pa+Pb+Pc)     (cap-reduction / load-share factor —
+            //               docx excludes Pc from the numerator; reason not stated in the
+            //               source, confirm with the geotechnical engineer of record)
+            //      Cstiff ≈ 0.75                     (empirical non-linear soil correction,
+            //               also not derived in the source — see cStiff input tooltip)
+            //    Algebraically ws·Rs = S_group, so this simplifies to:
+            //      S practical = S_group · ζpile · Cstiff
+            //    Cross-checked against the docx's own worked numbers (S_group=91mm,
+            //    ζpile=0.758, Cstiff=0.75 → 51.7mm): this file's defaults reproduce ≈52mm.
+            //    The docx's Method 2 (Global Stiffness, 2.41mm) is NOT used — the source
+            //    document itself discards it ("Use Settlement practical = 51.7mm").
+            const ws = pltMeasuredSettlement;
+            const Ppiles = Pa + Pb;
+            const Ptotal = Pa + Pb + Pc;
+            const zetaPile = Ptotal > 0 ? Ppiles / Ptotal : 0;
+            const Rs = ws > 0 ? settlement_mm / ws : 0;
+            const S_practical = settlement_mm * zetaPile * cStiff;
 
-            const limit = limits[i];
-            const exceeds = limit > 0 && practicalSettlement > limit;
+            const fieldReading = fieldReadings[i]; // governing (worst) of the 4 survey points
+            const exceeds = S_practical > 0 && fieldReading > S_practical;
             // Physical validity check: a negative pile load is not physically meaningful
             // for this gravity-loading configuration — flag it instead of silently showing it.
             if (!solveError && (Pa < 0 || Pb < 0 || Pc < 0)) {
@@ -970,12 +992,13 @@
             }
             siloResults.push({
                 silo: i + 1, fillPct: Math.round(fillRatios[i] * 100), qLive: qLiveBySilo[i],
-                Q_total: Q_total_i, Pa, Pb, Pc, settlement_mm, Rs, zetaPile, practicalSettlement, limit, exceeds, solveError
+                Q_total: Q_total_i, Pa, Pb, Pc, settlement_mm, zetaPile, Rs, S_practical,
+                fieldReading, exceeds, solveError
             });
         }
 
-        // Governing (worst-case) silo = highest PRACTICAL settlement (not raw δk)
-        const governing = siloResults.reduce((a, b) => (b.practicalSettlement > a.practicalSettlement ? b : a));
+        // Governing (worst-case) silo = highest settlement
+        const governing = siloResults.reduce((a, b) => (b.settlement_mm > a.settlement_mm ? b : a));
 
         // Update governing-case summary cards
         document.getElementById('resGoverningSilo').innerText = `Silo ${governing.silo}`;
@@ -983,17 +1006,15 @@
         document.getElementById('resPa').innerText = governing.Pa.toFixed(1) + ' kN';
         document.getElementById('resPb').innerText = governing.Pb.toFixed(1) + ' kN';
         document.getElementById('resPc').innerText = governing.Pc.toFixed(1) + ' kN';
-        // الهبوط العملي (Step 5, Method 1 — Practical Settlement.docx):
-        //   S_practical = ws · (Rs · ζpile · Cstiff)
-        // بدلاً من عرض δk الخام (مجموع هبوط المجموعة) مباشرة، أو القسمة المزدوجة القديمة الخاطئة.
-        document.getElementById('resSettlement').innerText = governing.practicalSettlement.toFixed(2) + ' mm';
+        // S practical (Practical_Settlement.docx Method 1) للسايلو الحاكم
+        document.getElementById('resSettlement').innerText = governing.S_practical.toFixed(2) + ' mm';
         document.getElementById('resSettlementNote').innerText =
-            `δk الخام = ${governing.settlement_mm.toFixed(2)} mm | Rs = ${governing.Rs.toFixed(2)} (بلا وحدة) | ζpile = ${governing.zetaPile.toFixed(3)} | Cstiff = ${cStiff}`;
-        document.getElementById('resMonitor').innerText = governing.practicalSettlement.toFixed(3) + ' mm';
+            `S group=δk: ${governing.settlement_mm.toFixed(2)}mm × ζpile: ${governing.zetaPile.toFixed(3)} × Cstiff: ${cStiff} (Rs=${governing.Rs.toFixed(2)})`;
+        document.getElementById('resMonitor').innerText = governing.fieldReading.toFixed(3) + ' mm';
         document.getElementById('resMonitorNote').innerText =
-            governing.limit > 0 ? `الحد المسموح (Silo ${governing.silo}): ${governing.limit} mm` : 'أدخل نقاط الحد المسموح';
+            `S practical المسموح (Silo ${governing.silo}): ${governing.S_practical.toFixed(2)} mm`;
 
-        // Badge Status — any silo exceeding its own monitoring limit flags DANGER
+        // Badge Status — any silo whose governing field reading exceeds its own S practical → ALARM
         const badge = document.getElementById('statusBadge');
         const anyError = siloResults.find(s => s.solveError);
         const anyExceeds = siloResults.find(s => s.exceeds);
@@ -1002,10 +1023,10 @@
             badge.innerText = '⚠ خطأ في الحل: ' + anyError.solveError;
         } else if (anyExceeds) {
             badge.className = 'status-badge status-danger';
-            badge.innerText = `⚠ الوضع حرج (Silo ${anyExceeds.silo} يتجاوز حد ورقة المراقبة)`;
+            badge.innerText = `⚠ إنذار ALARM (Silo ${anyExceeds.silo}: القراءة الحقلية ${anyExceeds.fieldReading.toFixed(2)}mm > S practical ${anyExceeds.S_practical.toFixed(2)}mm)`;
         } else {
             badge.className = 'status-badge status-safe';
-            badge.innerText = '● الوضع آمن (SAFE) — جميع السايلوهات ضمن الحد';
+            badge.innerText = '● الوضع آمن (SAFE) — جميع القراءات الحقلية ضمن S practical';
         }
 
         // Populate per-silo results table
@@ -1020,11 +1041,10 @@
                 <td>${s.Pb.toFixed(1)}</td>
                 <td>${s.Pc.toFixed(1)}</td>
                 <td>${s.settlement_mm.toFixed(2)}</td>
-                <td>${s.Rs.toFixed(2)}</td>
                 <td>${s.zetaPile.toFixed(3)}</td>
-                <td>${s.practicalSettlement.toFixed(2)}</td>
-                <td>${s.limit > 0 ? s.limit.toFixed(2) : '—'}</td>
-                <td class="${s.exceeds ? 'silo-bad' : 'silo-ok'}">${s.solveError ? 'خطأ' : (s.exceeds ? 'تجاوز' : 'آمن')}</td>
+                <td>${s.S_practical.toFixed(2)}</td>
+                <td>${s.fieldReading > 0 ? s.fieldReading.toFixed(2) : '—'}</td>
+                <td class="${s.exceeds ? 'silo-bad' : 'silo-ok'}">${s.solveError ? 'خطأ' : (s.exceeds ? 'ALARM' : 'آمن')}</td>
             </tr>`).join('');
 
         // Draw Canvas — using the governing silo's settlement to drive the raft deflection visual
@@ -1054,11 +1074,11 @@ ${alphaMatricesBySilo.map((am,idx) => `<span class="step-equation">  Silo ${idx+
 <span class="step-highlight">[STEP 4] Per-Silo 4×4 System — solved independently for each silo's own Q_total AND its own α matrix</span>
 ${siloResults.map(s => `<span class="step-equation">Silo ${s.silo}: Q_total=${s.Q_total.toFixed(0)} kN → Pa=${s.Pa.toFixed(1)}, Pb=${s.Pb.toFixed(1)}, Pc=${s.Pc.toFixed(1)} kN  →  δk (raw group settlement)=${s.settlement_mm.toFixed(2)} mm${s.solveError ? '  [SOLVE ERROR: '+s.solveError+']' : ''}</span>`).join('\n')}
 
-<span class="step-highlight">[STEP 5] Practical Settlement — Method 1 (Adjusted Settlement Ratio Approach, من Practical Settlement.docx) & Per-Silo Field-Monitoring Comparison (4-point، الأعلى هو الحاكم)</span>
-<span class="step-equation">S_practical = ws · (Rs · ζpile · Cstiff)   |   ws (هبوط الركيزة المفردة من فحص PLT) = ${ws_single} mm   |   Cstiff = ${cStiff}</span>
-${siloResults.map(s => `<span class="step-equation">Silo ${s.silo}: Rs=δk/ws=${s.settlement_mm.toFixed(2)}/${ws_single}=${s.Rs.toFixed(2)} (بلا وحدة)  →  ζpile=(Pa+Pb)/Q_total=(${s.Pa.toFixed(1)}+${s.Pb.toFixed(1)})/${s.Q_total.toFixed(0)}=${s.zetaPile.toFixed(3)}  →  S_practical=${ws_single}×(${s.Rs.toFixed(2)}×${s.zetaPile.toFixed(3)}×${cStiff})=${s.practicalSettlement.toFixed(2)}mm  vs المراقبة الحقلية(4 نقاط, أعلى قيمة)=${s.limit>0?s.limit.toFixed(2):'—'}mm  →  ${s.limit>0?(s.exceeds?'EXCEEDS':'WITHIN LIMIT'):'no limit set'}</span>`).join('\n')}
-<span class="step-equation">القيمة المعروضة في بطاقة النتائج العلوية = S_practical للسايلو الحاكم (أكبر S_practical، وليس أكبر δk الخام)</span>
-<span class="step-equation">Governing case (max S_practical): Silo ${governing.silo}</span>
+<span class="step-highlight">[STEP 5] S practical — Practical_Settlement.docx, Method 1 (Adjusted Settlement Ratio) — الحد الأقصى المسموح لكل سايلو</span>
+<span class="step-equation">S practical = ws·(Rs·ζpile·Cstiff) = S_group·ζpile·Cstiff   (ws=${pltMeasuredSettlement}mm يُختصر جبريًا؛ Cstiff=${cStiff} — قيمة تجريبية غير مشتقة، راجعها مع المهندس الجيوتقني)</span>
+${siloResults.map(s => `<span class="step-equation">Silo ${s.silo}: S_group=${s.settlement_mm.toFixed(2)}mm, Rs=S_group/ws=${s.Rs.toFixed(2)}, ζpile=(Pa+Pb)/(Pa+Pb+Pc)=${s.zetaPile.toFixed(3)} → S practical=${s.S_practical.toFixed(2)}mm  vs القراءة الحقلية الحاكمة(4 نقاط, أعلى قيمة)=${s.fieldReading>0?s.fieldReading.toFixed(2):'—'}mm  →  ${s.fieldReading>0?(s.exceeds?'ALARM — EXCEEDS S practical':'WITHIN LIMIT'):'no field reading entered'}</span>`).join('\n')}
+<span class="step-equation">ملاحظة: Practical_Settlement.docx يحسب أيضًا Method 2 (Global Stiffness Approach) = 2.41mm لكن يستبعدها صراحةً ("Use Settlement practical = 51.7mm") — لم تُستخدم هنا لهذا السبب.</span>
+<span class="step-equation">Governing case (max δk / S_group): Silo ${governing.silo}</span>
         `;
         document.getElementById('logContent').innerHTML = logHtml;
     }
