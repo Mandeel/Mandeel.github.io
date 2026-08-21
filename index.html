@@ -604,9 +604,10 @@
                             <th>Pb</th>
                             <th>Pc</th>
                             <th>S group=δk (mm)</th>
-                            <th>ζ pile</th>
+                            <th>Rs</th>
                             <th>S practical (mm)</th>
                             <th>القراءة الحقلية (mm)</th>
+                            <th>الملء الموصى به الأقصى</th>
                             <th>الحالة</th>
                         </tr>
                     </thead>
@@ -985,15 +986,35 @@
 
             const fieldReading = fieldReadings[i]; // governing (worst) of the 4 survey points
             const exceeds = S_practical > 0 && fieldReading > S_practical;
+
+            // If the field reading exceeds S practical, back out how much the fill level
+            // must be reduced to bring it back into compliance:
+            //   excess          = fieldReading − S practical           (mm over allowable)
+            //   reductionRatio  = excess / S_group                     (S_group = δk at CURRENT fill)
+            //   recommendedFill = currentFillPct − reductionRatio×100
+            // Worked example: fieldReading=60, S_practical=52.02, S_group=91.45 →
+            //   excess=7.98mm, reductionRatio=7.98/91.45=0.08726 → recommendedFill=100−8.726=91.27%
+            // This assumes S_group scales roughly proportionally with fill level (linear
+            // approximation — it ignores the constant qStatic component of the load, so treat
+            // the recommended % as a first-pass estimate, then re-run calculate() at that fill
+            // to confirm the new S practical/field-reading margin, not a guaranteed exact value.
+            const currentFillPct = Math.round(fillRatios[i] * 100);
+            let recommendedMaxFillPct = null;
+            if (exceeds && settlement_mm > 0) {
+                const excess_mm = fieldReading - S_practical;
+                const reductionRatio = excess_mm / settlement_mm;
+                recommendedMaxFillPct = Math.max(0, currentFillPct - reductionRatio * 100);
+            }
+
             // Physical validity check: a negative pile load is not physically meaningful
             // for this gravity-loading configuration — flag it instead of silently showing it.
             if (!solveError && (Pa < 0 || Pb < 0 || Pc < 0)) {
                 solveError = `حمل ركيزة سالب غير منطقي فيزيائيًا (Pa=${Pa.toFixed(0)}, Pb=${Pb.toFixed(0)}, Pc=${Pc.toFixed(0)}) — تحقق من مصفوفة α`;
             }
             siloResults.push({
-                silo: i + 1, fillPct: Math.round(fillRatios[i] * 100), qLive: qLiveBySilo[i],
+                silo: i + 1, fillPct: currentFillPct, qLive: qLiveBySilo[i],
                 Q_total: Q_total_i, Pa, Pb, Pc, settlement_mm, zetaPile, Rs, S_practical,
-                fieldReading, exceeds, solveError
+                fieldReading, exceeds, recommendedMaxFillPct, solveError
             });
         }
 
@@ -1023,7 +1044,7 @@
             badge.innerText = '⚠ خطأ في الحل: ' + anyError.solveError;
         } else if (anyExceeds) {
             badge.className = 'status-badge status-danger';
-            badge.innerText = `⚠ إنذار ALARM (Silo ${anyExceeds.silo}: القراءة الحقلية ${anyExceeds.fieldReading.toFixed(2)}mm > S practical ${anyExceeds.S_practical.toFixed(2)}mm)`;
+            badge.innerText = `⚠ إنذار ALARM (Silo ${anyExceeds.silo}: القراءة الحقلية ${anyExceeds.fieldReading.toFixed(2)}mm > S practical ${anyExceeds.S_practical.toFixed(2)}mm — خفّض الملء إلى ${anyExceeds.recommendedMaxFillPct.toFixed(2)}% أو أقل)`;
         } else {
             badge.className = 'status-badge status-safe';
             badge.innerText = '● الوضع آمن (SAFE) — جميع القراءات الحقلية ضمن S practical';
@@ -1041,9 +1062,10 @@
                 <td>${s.Pb.toFixed(1)}</td>
                 <td>${s.Pc.toFixed(1)}</td>
                 <td>${s.settlement_mm.toFixed(2)}</td>
-                <td>${s.zetaPile.toFixed(3)}</td>
+                <td>${s.Rs.toFixed(2)}</td>
                 <td>${s.S_practical.toFixed(2)}</td>
                 <td>${s.fieldReading > 0 ? s.fieldReading.toFixed(2) : '—'}</td>
+                <td class="${s.exceeds ? 'silo-bad' : ''}">${s.exceeds ? s.recommendedMaxFillPct.toFixed(2) + '%' : '—'}</td>
                 <td class="${s.exceeds ? 'silo-bad' : 'silo-ok'}">${s.solveError ? 'خطأ' : (s.exceeds ? 'ALARM' : 'آمن')}</td>
             </tr>`).join('');
 
@@ -1076,7 +1098,8 @@ ${siloResults.map(s => `<span class="step-equation">Silo ${s.silo}: Q_total=${s.
 
 <span class="step-highlight">[STEP 5] S practical — Practical_Settlement.docx, Method 1 (Adjusted Settlement Ratio) — الحد الأقصى المسموح لكل سايلو</span>
 <span class="step-equation">S practical = ws·(Rs·ζpile·Cstiff) = S_group·ζpile·Cstiff   (ws=${pltMeasuredSettlement}mm يُختصر جبريًا؛ Cstiff=${cStiff} — قيمة تجريبية غير مشتقة، راجعها مع المهندس الجيوتقني)</span>
-${siloResults.map(s => `<span class="step-equation">Silo ${s.silo}: S_group=${s.settlement_mm.toFixed(2)}mm, Rs=S_group/ws=${s.Rs.toFixed(2)}, ζpile=(Pa+Pb)/(Pa+Pb+Pc)=${s.zetaPile.toFixed(3)} → S practical=${s.S_practical.toFixed(2)}mm  vs القراءة الحقلية الحاكمة(4 نقاط, أعلى قيمة)=${s.fieldReading>0?s.fieldReading.toFixed(2):'—'}mm  →  ${s.fieldReading>0?(s.exceeds?'ALARM — EXCEEDS S practical':'WITHIN LIMIT'):'no field reading entered'}</span>`).join('\n')}
+${siloResults.map(s => `<span class="step-equation">Silo ${s.silo}: S_group=${s.settlement_mm.toFixed(2)}mm, Rs=S_group/ws=${s.Rs.toFixed(2)}, ζpile=(Pa+Pb)/(Pa+Pb+Pc)=${s.zetaPile.toFixed(3)} → S practical=${s.S_practical.toFixed(2)}mm  vs القراءة الحقلية الحاكمة(4 نقاط, أعلى قيمة)=${s.fieldReading>0?s.fieldReading.toFixed(2):'—'}mm  →  ${s.fieldReading>0?(s.exceeds?'ALARM — EXCEEDS S practical':'WITHIN LIMIT'):'no field reading entered'}${s.exceeds?`
+  ↳ تخفيض الملء المطلوب: excess=(${s.fieldReading.toFixed(2)}−${s.S_practical.toFixed(2)})=${(s.fieldReading-s.S_practical).toFixed(2)}mm ÷ S_group=${s.settlement_mm.toFixed(2)}mm = ${((s.fieldReading-s.S_practical)/s.settlement_mm).toFixed(8)} → خفّض الملء من ${s.fillPct}% إلى ${s.recommendedMaxFillPct.toFixed(2)}% أو أقل`:''}</span>`).join('\n')}
 <span class="step-equation">ملاحظة: Practical_Settlement.docx يحسب أيضًا Method 2 (Global Stiffness Approach) = 2.41mm لكن يستبعدها صراحةً ("Use Settlement practical = 51.7mm") — لم تُستخدم هنا لهذا السبب.</span>
 <span class="step-equation">Governing case (max δk / S_group): Silo ${governing.silo}</span>
         `;
