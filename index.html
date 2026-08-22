@@ -513,32 +513,75 @@
             <div class="silo-limits-grid">
                 <div></div><label>P1</label><label>P2</label><label>P3</label><label>P4</label>
                 <div class="matrix-row-label">Silo 1</div>
-                <input type="number" step="0.01" id="limS1P1" value="0.25" oninput="calculate()">
-                <input type="number" step="0.01" id="limS1P2" value="0.25" oninput="calculate()">
-                <input type="number" step="0.01" id="limS1P3" value="0.25" oninput="calculate()">
-                <input type="number" step="0.01" id="limS1P4" value="0.25" oninput="calculate()">
+                <input type="number" step="0.01" id="limS1P1" value="0.995" oninput="calculate()">
+                <input type="number" step="0.01" id="limS1P2" value="0.995" oninput="calculate()">
+                <input type="number" step="0.01" id="limS1P3" value="0.995" oninput="calculate()">
+                <input type="number" step="0.01" id="limS1P4" value="0.995" oninput="calculate()">
                 <div class="matrix-row-label">Silo 2</div>
-                <input type="number" step="0.01" id="limS2P1" value="0.25" oninput="calculate()">
-                <input type="number" step="0.01" id="limS2P2" value="0.25" oninput="calculate()">
-                <input type="number" step="0.01" id="limS2P3" value="0.25" oninput="calculate()">
-                <input type="number" step="0.01" id="limS2P4" value="0.25" oninput="calculate()">
+                <input type="number" step="0.01" id="limS2P1" value="0.995" oninput="calculate()">
+                <input type="number" step="0.01" id="limS2P2" value="0.995" oninput="calculate()">
+                <input type="number" step="0.01" id="limS2P3" value="0.995" oninput="calculate()">
+                <input type="number" step="0.01" id="limS2P4" value="0.995" oninput="calculate()">
                 <div class="matrix-row-label">Silo 3</div>
-                <input type="number" step="0.01" id="limS3P1" value="0.25" oninput="calculate()">
-                <input type="number" step="0.01" id="limS3P2" value="0.25" oninput="calculate()">
-                <input type="number" step="0.01" id="limS3P3" value="0.25" oninput="calculate()">
-                <input type="number" step="0.01" id="limS3P4" value="0.25" oninput="calculate()">
+                <input type="number" step="0.01" id="limS3P1" value="0.999" oninput="calculate()">
+                <input type="number" step="0.01" id="limS3P2" value="0.999" oninput="calculate()">
+                <input type="number" step="0.01" id="limS3P3" value="0.999" oninput="calculate()">
+                <input type="number" step="0.01" id="limS3P4" value="0.999" oninput="calculate()">
                 <div class="matrix-row-label">Silo 4</div>
-                <input type="number" step="0.01" id="limS4P1" value="0.25" oninput="calculate()">
-                <input type="number" step="0.01" id="limS4P2" value="0.25" oninput="calculate()">
-                <input type="number" step="0.01" id="limS4P3" value="0.25" oninput="calculate()">
-                <input type="number" step="0.01" id="limS4P4" value="0.25" oninput="calculate()">
+                <input type="number" step="0.01" id="limS4P1" value="0.995" oninput="calculate()">
+                <input type="number" step="0.01" id="limS4P2" value="0.995" oninput="calculate()">
+                <input type="number" step="0.01" id="limS4P3" value="0.995" oninput="calculate()">
+                <input type="number" step="0.01" id="limS4P4" value="0.995" oninput="calculate()">
             </div>
+
+            <label style="font-size: 0.8rem; color: var(--text-muted); margin: 14px 0 5px; display: block;">نسبة الملء وقت أخذ القراءة الحقلية (%) — حالة التحميل التي رُصدت عندها القراءة أعلاه</label>
+            <div class="grid-3">
+                <div class="form-group">
+                    <label>Silo 1</label>
+                    <input type="number" min="0" max="100" step="1" id="refFill1" value="100" oninput="calculate()" title="نسبة امتلاء السايلو لحظة رصد الهبوط بجهاز المساحة. هذه ليست نسبة التشغيل الحالية — القراءة الحقلية مقاسة عند هذه النسبة، وتُستخدم لمعايرة الإسقاط عند أي نسبة ملء أخرى.">
+                </div>
+                <div class="form-group">
+                    <label>Silo 2</label>
+                    <input type="number" min="0" max="100" step="1" id="refFill2" value="100" oninput="calculate()">
+                </div>
+                <div class="form-group">
+                    <label>Silo 3</label>
+                    <input type="number" min="0" max="100" step="1" id="refFill3" value="100" oninput="calculate()">
+                </div>
+                <div class="form-group">
+                    <label>Silo 4</label>
+                    <input type="number" min="0" max="100" step="1" id="refFill4" value="100" oninput="calculate()">
+                </div>
+            </div>
+            <p style="font-size:0.7rem;color:var(--text-muted);margin:-4px 0 10px;">
+                فصل نسبة الملء وقت الرصد عن نسبة التشغيل (المزلاج في القسم 1) ضروري: القراءة الحقلية قيمة ثابتة مقاسة عند
+                حالة تحميل معيّنة، ولا تتغيّر بتحريك المزلاج.
+            </p>
+
+            <div class="grid-3">
+                <div class="form-group">
+                    <label>مصدر الحد المسموح (S allowable)</label>
+                    <select id="allowSource" onchange="calculate()">
+                        <option value="design" selected>S practical عند حالة التصميم (ملء 100%) — ثابت</option>
+                        <option value="manual">قيمة يدوية من الكود/المواصفة (mm)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>الحد المسموح اليدوي (mm)</label>
+                    <input type="number" step="0.01" id="allowManual" value="25" oninput="calculate()" title="يُستخدم فقط عند اختيار «قيمة يدوية» — مثلاً حد الهبوط الكلي المسموح في الكود المعتمد.">
+                </div>
+            </div>
+            <p style="font-size:0.7rem;color:var(--text-muted);margin:-4px 0 10px;">
+                ⚠ الحد المسموح يجب أن يكون <b>ثابتًا</b> لا يتغيّر بنسبة الملء. حساب S practical عند نسبة الملء الحالية
+                يجعل الحد يهبط مع الحمل، فلا يتحقّق شرط الأمان أبدًا مهما خُفّض الملء (انظر الملاحظة أسفل الجدول).
+            </p>
         </div>
 
         <button class="btn" onclick="generatePDFReport()">🖨️ إنشاء تقرير PDF (بتاريخ فحص الهبوط)</button>
         <p style="font-size:0.7rem;color:var(--text-muted);margin:6px 0 0;">
-            الحد الأقصى المسموح لكل سايلو = S practical (Method 1، Practical_Settlement.docx). القراءة الحقلية الحاكمة
-            (أعلى قيمة من النقاط الأربع) تُقارن بـ S practical؛ تجاوزها يُصدر إنذار (ALARM).
+            الحد المسموح الثابت S allowable (افتراضيًا = S practical عند ملء 100%، Method 1، Practical_Settlement.docx)
+            يُقارن بالهبوط المُسقَط عند نسبة التشغيل الحالية S projected، المعاير من القراءة الحقلية الحاكمة
+            (أعلى قيمة من النقاط الأربع). تجاوزه يُصدر إنذار (ALARM).
         </p>
     </div>
 
@@ -578,12 +621,12 @@
                 <div class="value" id="resPc" style="color: var(--accent-green);">0 kN</div>
             </div>
             <div class="result-card settlement">
-                <label>S practical (السايلو الحاكم) — أعلى هبوط مسموح، Method 1</label>
+                <label>S allowable (الحد المسموح الثابت) — لا يتأثر بنسبة الملء</label>
                 <div class="value" id="resSettlement" style="color: var(--accent-amber);">0 mm</div>
                 <div class="subtext" id="resSettlementNote">—</div>
             </div>
             <div class="result-card settlement">
-                <label>القراءة الحقلية الحاكمة vs S practical</label>
+                <label>S projected — القراءة الحقلية مُسقطة على الملء الحالي</label>
                 <div class="value" id="resMonitor" style="color: var(--accent-red);">0 mm</div>
                 <div class="subtext" id="resMonitorNote">—</div>
             </div>
@@ -605,8 +648,9 @@
                             <th>Pc</th>
                             <th>S group=δk (mm)</th>
                             <th>Rs</th>
-                            <th>S practical (mm)</th>
+                            <th>S allowable ثابت (mm)</th>
                             <th>القراءة الحقلية (mm)</th>
+                            <th>S projected (mm)</th>
                             <th>الملء الموصى به الأقصى</th>
                             <th>الحالة</th>
                         </tr>
@@ -672,7 +716,7 @@
         // figure: A (center, highest load) flanked by B (mid), flanked by C (edge).
         const pileW = 12;
         const pileH = height * 0.25;
-        const groupOrder = ['C','C','B','B','A','A','A','B','B','C','C'];
+        const groupOrder = ['A','A','B','B','C','C','C','B','B','A','A'];
         const pileSpacing = raftW / (groupOrder.length + 1);
         const groupColor = { A: '#3b82f6', B: '#f59e0b', C: '#10b981' };
 
@@ -746,7 +790,7 @@
                 const grp = groupOrder[runStart];
                 const centerIdx = (runStart + i - 1) / 2 + 1; // 1-based pile index at cluster center
                 const labelX = raftX + centerIdx * pileSpacing;
-                const groupNoun = grp === 'A' ? 'Grp A (Center)' : grp === 'B' ? 'Grp B (Mid)' : 'Grp C (Edge)';
+                const groupNoun = grp === 'A' ? 'Grp A (Edge)' : grp === 'B' ? 'Grp B (Mid)' : 'Grp C (Center)';
                 ctx.fillStyle = groupColor[grp];
                 ctx.fillText(groupNoun, labelX, groundY + pileH + 15);
                 runStart = i;
@@ -934,6 +978,24 @@
         const fieldReadings = [1, 2, 3, 4].map(siloFieldReading);
         const cStiff = parseFloat(document.getElementById('cStiff').value) || 0;
 
+        // Fill ratio in force AT THE MOMENT each field reading was surveyed. This is what the
+        // measured settlement corresponds to — it is NOT the operating slider, which the user
+        // moves to explore "what if we unload?". Conflating the two was the root cause of the
+        // never-clearing ALARM.
+        const refFills = [1, 2, 3, 4].map(i => {
+            const v = parseFloat(document.getElementById('refFill' + i).value);
+            return isNaN(v) ? 1 : Math.min(100, Math.max(0, v)) / 100;
+        });
+
+        // Allowable limit source — constant, independent of the operating fill.
+        const allowSource = document.getElementById('allowSource').value;
+        const allowManual = parseFloat(document.getElementById('allowManual').value) || 0;
+
+        // Live load of ONE silo at 100% fill — the reference for the design condition and for
+        // solving the recommended fill in closed form.
+        const qLiveMaxPerTank = tankArea * hFluid * materialDensity * GRAVITY / 1000;
+        const Q_design_i = qStatic + qLiveMaxPerTank;
+
         // Solve the 4x4 system (α matrix + equilibrium) INDEPENDENTLY for each silo —
         // each silo has its own 60-pile group (28A/16B/16C), its own Q_total = Q_static + its
         // own live load, AND (per your instruction) its own α matrix sourced from its own sheet.
@@ -982,28 +1044,60 @@
             const Ptotal = Pa + Pb + Pc;
             const zetaPile = Ptotal > 0 ? Ppiles / Ptotal : 0;
             const Rs = ws > 0 ? settlement_mm / ws : 0;
+            // S practical AT THE CURRENT FILL — this is a PREDICTED settlement for the current
+            // load, NOT an allowable limit. Kept for display/traceability only.
             const S_practical = settlement_mm * zetaPile * cStiff;
 
-            const fieldReading = fieldReadings[i]; // governing (worst) of the 4 survey points
-            const exceeds = S_practical > 0 && fieldReading > S_practical;
+            // ── FIXED ALLOWABLE LIMIT (S allowable) ──────────────────────────────────────
+            // BUG FIX. Previously the code compared the (fixed, already-measured) field
+            // reading against S_practical evaluated at the CURRENT fill. The 4x4 system is
+            // linear in the load vector b = [0,0,0,Q_total], so
+            //     [Pa,Pb,Pc,S] = M⁻¹·b   ⇒   S_group ∝ Q_total   and   ζpile = const,
+            // therefore S_practical ∝ Q_total = qStatic + qLive(fill).
+            // Lowering the fill lowered the LIMIT itself, so `fieldReading > S_practical`
+            // once true stayed true at every lower fill — the status could never return to
+            // SAFE, not even at 0% fill (where the limit bottoms out at k·qStatic > 0), and
+            // each recalculation produced a new, always-worse recommended fill %.
+            // The allowable must be a CONSTANT, evaluated once at the design condition
+            // (100% fill) or taken from the governing code, never from the live slider.
+            const S_practical_design = Q_total_i > 0
+                ? S_practical * (Q_design_i / Q_total_i)   // linear scale-up to 100% fill
+                : 0;
+            const S_allow = allowSource === 'manual' ? allowManual : S_practical_design;
 
-            // If the field reading exceeds S practical, back out how much the fill level
-            // must be reduced to bring it back into compliance:
-            //   excess          = fieldReading − S practical           (mm over allowable)
-            //   reductionRatio  = excess / S_group                     (S_group = δk at CURRENT fill)
-            //   recommendedFill = currentFillPct − reductionRatio×100
-            // Worked example: fieldReading=60, S_practical=52.02, S_group=91.45 →
-            //   excess=7.98mm, reductionRatio=7.98/91.45=0.08726 → recommendedFill=100−8.726=91.27%
-            // This assumes S_group scales roughly proportionally with fill level (linear
-            // approximation — it ignores the constant qStatic component of the load, so treat
-            // the recommended % as a first-pass estimate, then re-run calculate() at that fill
-            // to confirm the new S practical/field-reading margin, not a guaranteed exact value.
+            // ── CALIBRATED PROJECTION (S projected) ──────────────────────────────────────
+            // The field reading is a measurement taken at a specific load state (refFill),
+            // so it cannot be compared to a limit at a different fill without rescaling it.
+            // Using the measurement to calibrate the actual site flexibility:
+            //     S_projected(fill) = fieldReading · Q_total(fill) / Q_total(refFill)
+            // At fill = refFill this returns the raw reading, so the alarm threshold at the
+            // as-measured state is unchanged. Below refFill it decreases while S_allow stays
+            // put — so unloading now genuinely clears the alarm, as it should.
+            const Q_ref_i = qStatic + qLiveMaxPerTank * refFills[i];
+            const fieldReading = fieldReadings[i]; // governing (worst) of the 4 survey points
+            const S_projected = Q_ref_i > 0 ? fieldReading * (Q_total_i / Q_ref_i) : fieldReading;
+            const exceeds = S_allow > 0 && S_projected > S_allow;
+
+            // ── RECOMMENDED MAX FILL — closed form, converges in one step ────────────────
+            // Require S_projected(f) ≤ S_allow:
+            //     fieldReading·(qStatic + qLmax·f)/Q_ref ≤ S_allow
+            //  ⇒  f ≤ (Q_ref·S_allow/fieldReading − qStatic) / qLmax
+            // The constant qStatic term is carried explicitly (the old formula dropped it,
+            // which is why re-running at the recommended % never landed on the boundary).
+            // If the result is negative, the static load alone already exceeds the limit and
+            // emptying the silo cannot resolve it — reported as such instead of a fake %.
             const currentFillPct = Math.round(fillRatios[i] * 100);
             let recommendedMaxFillPct = null;
-            if (exceeds && settlement_mm > 0) {
-                const excess_mm = fieldReading - S_practical;
-                const reductionRatio = excess_mm / settlement_mm;
-                recommendedMaxFillPct = Math.max(0, currentFillPct - reductionRatio * 100);
+            let unloadInsufficient = false;
+            if (exceeds && fieldReading > 0 && qLiveMaxPerTank > 0) {
+                const Q_target = Q_ref_i * S_allow / fieldReading;
+                const f_target = (Q_target - qStatic) / qLiveMaxPerTank;
+                if (f_target < 0) {
+                    unloadInsufficient = true;
+                    recommendedMaxFillPct = 0;
+                } else {
+                    recommendedMaxFillPct = Math.min(100, f_target * 100);
+                }
             }
 
             // Physical validity check: a negative pile load is not physically meaningful
@@ -1014,7 +1108,8 @@
             siloResults.push({
                 silo: i + 1, fillPct: currentFillPct, qLive: qLiveBySilo[i],
                 Q_total: Q_total_i, Pa, Pb, Pc, settlement_mm, zetaPile, Rs, S_practical,
-                fieldReading, exceeds, recommendedMaxFillPct, solveError
+                S_practical_design, S_allow, S_projected, refFillPct: Math.round(refFills[i] * 100),
+                fieldReading, exceeds, recommendedMaxFillPct, unloadInsufficient, solveError
             });
         }
 
@@ -1028,12 +1123,13 @@
         document.getElementById('resPb').innerText = governing.Pb.toFixed(1) + ' kN';
         document.getElementById('resPc').innerText = governing.Pc.toFixed(1) + ' kN';
         // S practical (Practical_Settlement.docx Method 1) للسايلو الحاكم
-        document.getElementById('resSettlement').innerText = governing.S_practical.toFixed(2) + ' mm';
-        document.getElementById('resSettlementNote').innerText =
-            `S group=δk: ${governing.settlement_mm.toFixed(2)}mm × ζpile: ${governing.zetaPile.toFixed(3)} × Cstiff: ${cStiff} (Rs=${governing.Rs.toFixed(2)})`;
-        document.getElementById('resMonitor').innerText = governing.fieldReading.toFixed(3) + ' mm';
+        document.getElementById('resSettlement').innerText = governing.S_allow.toFixed(2) + ' mm';
+        document.getElementById('resSettlementNote').innerText = allowSource === 'manual'
+            ? `حد يدوي ثابت من الكود — لا يتأثر بنسبة الملء (S practical عند الملء الحالي: ${governing.S_practical.toFixed(2)}mm)`
+            : `ثابت عند حالة التصميم (ملء 100%): S group=${(governing.settlement_mm * (governing.Q_total > 0 ? Q_design_i / governing.Q_total : 0)).toFixed(2)}mm × ζpile=${governing.zetaPile.toFixed(3)} × Cstiff=${cStiff}`;
+        document.getElementById('resMonitor').innerText = governing.S_projected.toFixed(3) + ' mm';
         document.getElementById('resMonitorNote').innerText =
-            `S practical المسموح (Silo ${governing.silo}): ${governing.S_practical.toFixed(2)} mm`;
+            `قراءة حقلية ${governing.fieldReading.toFixed(2)}mm عند ملء ${governing.refFillPct}% → مُسقطة عند ملء ${governing.fillPct}% (الحد الثابت: ${governing.S_allow.toFixed(2)}mm)`;
 
         // Badge Status — any silo whose governing field reading exceeds its own S practical → ALARM
         const badge = document.getElementById('statusBadge');
@@ -1044,10 +1140,12 @@
             badge.innerText = '⚠ خطأ في الحل: ' + anyError.solveError;
         } else if (anyExceeds) {
             badge.className = 'status-badge status-danger';
-            badge.innerText = `⚠ إنذار ALARM (Silo ${anyExceeds.silo}: القراءة الحقلية ${anyExceeds.fieldReading.toFixed(2)}mm > S practical ${anyExceeds.S_practical.toFixed(2)}mm — خفّض الملء إلى ${anyExceeds.recommendedMaxFillPct.toFixed(2)}% أو أقل)`;
+            badge.innerText = anyExceeds.unloadInsufficient
+                ? `⚠ إنذار ALARM (Silo ${anyExceeds.silo}: الهبوط المُسقط ${anyExceeds.S_projected.toFixed(2)}mm > الحد المسموح ${anyExceeds.S_allow.toFixed(2)}mm — الحمل الثابت وحده يتجاوز الحد، التفريغ الكامل لا يكفي: راجع المهندس الجيوتقني)`
+                : `⚠ إنذار ALARM (Silo ${anyExceeds.silo}: الهبوط المُسقط ${anyExceeds.S_projected.toFixed(2)}mm > الحد المسموح ${anyExceeds.S_allow.toFixed(2)}mm — خفّض الملء إلى ${anyExceeds.recommendedMaxFillPct.toFixed(2)}% أو أقل)`;
         } else {
             badge.className = 'status-badge status-safe';
-            badge.innerText = '● الوضع آمن (SAFE) — جميع القراءات الحقلية ضمن S practical';
+            badge.innerText = '● الوضع آمن (SAFE) — الهبوط المُسقط لكل السايلوات ضمن الحد المسموح الثابت';
         }
 
         // Populate per-silo results table
@@ -1063,9 +1161,10 @@
                 <td>${s.Pc.toFixed(1)}</td>
                 <td>${s.settlement_mm.toFixed(2)}</td>
                 <td>${s.Rs.toFixed(2)}</td>
-                <td>${s.S_practical.toFixed(2)}</td>
-                <td>${s.fieldReading > 0 ? s.fieldReading.toFixed(2) : '—'}</td>
-                <td class="${s.exceeds ? 'silo-bad' : ''}">${s.exceeds ? s.recommendedMaxFillPct.toFixed(2) + '%' : '—'}</td>
+                <td>${s.S_allow.toFixed(2)}</td>
+                <td>${s.fieldReading > 0 ? s.fieldReading.toFixed(2) + ' @' + s.refFillPct + '%' : '—'}</td>
+                <td>${s.fieldReading > 0 ? s.S_projected.toFixed(2) : '—'}</td>
+                <td class="${s.exceeds ? 'silo-bad' : ''}">${s.exceeds ? (s.unloadInsufficient ? 'التفريغ لا يكفي' : s.recommendedMaxFillPct.toFixed(2) + '%') : '—'}</td>
                 <td class="${s.exceeds ? 'silo-bad' : 'silo-ok'}">${s.solveError ? 'خطأ' : (s.exceeds ? 'ALARM' : 'آمن')}</td>
             </tr>`).join('');
 
@@ -1096,14 +1195,18 @@ ${alphaMatricesBySilo.map((am,idx) => `<span class="step-equation">  Silo ${idx+
 <span class="step-highlight">[STEP 4] Per-Silo 4×4 System — solved independently for each silo's own Q_total AND its own α matrix</span>
 ${siloResults.map(s => `<span class="step-equation">Silo ${s.silo}: Q_total=${s.Q_total.toFixed(0)} kN → Pa=${s.Pa.toFixed(1)}, Pb=${s.Pb.toFixed(1)}, Pc=${s.Pc.toFixed(1)} kN  →  δk (raw group settlement)=${s.settlement_mm.toFixed(2)} mm${s.solveError ? '  [SOLVE ERROR: '+s.solveError+']' : ''}</span>`).join('\n')}
 
-<span class="step-highlight">[STEP 5] S practical — Practical_Settlement.docx, Method 1 (Adjusted Settlement Ratio) — الحد الأقصى المسموح لكل سايلو</span>
-<span class="step-equation">S practical = ws·(Rs·ζpile·Cstiff) = S_group·ζpile·Cstiff   (ws=${pltMeasuredSettlement}mm يُختصر جبريًا؛ Cstiff=${cStiff} — قيمة تجريبية غير مشتقة، راجعها مع المهندس الجيوتقني)</span>
-${siloResults.map(s => `<span class="step-equation">Silo ${s.silo}: S_group=${s.settlement_mm.toFixed(2)}mm, Rs=S_group/ws=${s.Rs.toFixed(2)}, ζpile=(Pa+Pb)/(Pa+Pb+Pc)=${s.zetaPile.toFixed(3)} → S practical=${s.S_practical.toFixed(2)}mm  vs القراءة الحقلية الحاكمة(4 نقاط, أعلى قيمة)=${s.fieldReading>0?s.fieldReading.toFixed(2):'—'}mm  →  ${s.fieldReading>0?(s.exceeds?'ALARM — EXCEEDS S practical':'WITHIN LIMIT'):'no field reading entered'}${s.exceeds?`
-  ↳ تخفيض الملء المطلوب: excess=(${s.fieldReading.toFixed(2)}−${s.S_practical.toFixed(2)})=${(s.fieldReading-s.S_practical).toFixed(2)}mm ÷ S_group=${s.settlement_mm.toFixed(2)}mm = ${((s.fieldReading-s.S_practical)/s.settlement_mm).toFixed(8)} → خفّض الملء من ${s.fillPct}% إلى ${s.recommendedMaxFillPct.toFixed(2)}% أو أقل`:''}</span>`).join('\n')}
+<span class="step-highlight">[STEP 5] الحد المسموح الثابت S allowable مقابل الهبوط المُسقط S projected — تصحيح منطق الإنذار</span>
+<span class="step-equation">S practical(fill) = S_group·ζpile·Cstiff — قيمة تنبؤية عند الحمل الحالي، وليست حدًا مسموحًا. النظام خطي: S_group ∝ Q_total و ζpile ثابتة، أي أن S practical تهبط مع الملء.</span>
+<span class="step-equation">لذلك الحد المسموح يُثبّت: S allowable = ${allowSource === 'manual' ? `قيمة يدوية = ${allowManual.toFixed(2)}mm` : `S practical عند ملء 100% (Q_design=${Q_design_i.toFixed(0)}kN)`}   — لا يتغيّر بحركة المزلاج</span>
+<span class="step-equation">والقراءة الحقلية تُعاير لحالة التحميل: S projected(fill) = القراءة الحقلية · Q_total(fill) / Q_total(ref fill)</span>
+${siloResults.map(s => `<span class="step-equation">Silo ${s.silo}: S_group=${s.settlement_mm.toFixed(2)}mm, Rs=${s.Rs.toFixed(2)}, ζpile=${s.zetaPile.toFixed(3)}, S practical(الملء الحالي)=${s.S_practical.toFixed(2)}mm | S allowable=${s.S_allow.toFixed(2)}mm  vs  S projected=${s.fieldReading>0?s.S_projected.toFixed(2):'—'}mm (قراءة ${s.fieldReading>0?s.fieldReading.toFixed(2):'—'}mm عند ملء ${s.refFillPct}% → ملء ${s.fillPct}%)  →  ${s.fieldReading>0?(s.exceeds?'ALARM — EXCEEDS S allowable':'WITHIN LIMIT'):'no field reading entered'}${s.exceeds?`
+  ↳ الحل المغلق: Q_target=Q_ref·S_allow/القراءة=${(qStatic + qLiveMaxPerTank*(s.refFillPct/100)).toFixed(0)}×${s.S_allow.toFixed(2)}/${s.fieldReading.toFixed(2)}=${((qStatic + qLiveMaxPerTank*(s.refFillPct/100))*s.S_allow/s.fieldReading).toFixed(0)}kN → f=(Q_target−qStatic)/Q_live,max=(${((qStatic + qLiveMaxPerTank*(s.refFillPct/100))*s.S_allow/s.fieldReading).toFixed(0)}−${qStatic.toFixed(0)})/${qLiveMaxPerTank.toFixed(0)} → ${s.unloadInsufficient?'سالبة: الحمل الثابت وحده يتجاوز الحد — التفريغ الكامل لا يكفي، راجع المهندس الجيوتقني':`خفّض الملء من ${s.fillPct}% إلى ${s.recommendedMaxFillPct.toFixed(2)}% أو أقل (يتقارب من أول خطوة)`}`:''}</span>`).join('\n')}
 <span class="step-equation">ملاحظة: Practical_Settlement.docx يحسب أيضًا Method 2 (Global Stiffness Approach) = 2.41mm لكن يستبعدها صراحةً ("Use Settlement practical = 51.7mm") — لم تُستخدم هنا لهذا السبب.</span>
 <span class="step-equation">Governing case (max δk / S_group): Silo ${governing.silo}</span>
         `;
         document.getElementById('logContent').innerHTML = logHtml;
+
+        saveInputsToStorage();
     }
 
     // Formats any date (Date object or 'YYYY-MM-DD' string) into one consistent,
@@ -1183,7 +1286,40 @@ ${siloResults.map(s => `<span class="step-equation">Silo ${s.silo}: S_group=${s.
         window.print();
     }
 
+    // Input persistence — every editable field (not the readonly/computed display fields)
+    // is saved to localStorage on every calculate(), and restored on page load, so a
+    // refresh keeps whatever the user last entered instead of resetting to defaults.
+    const PERSIST_KEY = 'pileAppInputs';
+
+    function getPersistableInputs() {
+        // All <input> (except readonly/disabled ones, which are computed/display-only)
+        // and all <select> elements that have an id, excluding the password gate.
+        return Array.from(document.querySelectorAll('input[id], select[id]'))
+            .filter(el => el.id !== 'gatePasswordInput' && !el.readOnly && !el.disabled);
+    }
+
+    function saveInputsToStorage() {
+        try {
+            const state = {};
+            getPersistableInputs().forEach(el => { state[el.id] = el.value; });
+            localStorage.setItem(PERSIST_KEY, JSON.stringify(state));
+        } catch (e) { /* localStorage unavailable — silently skip persistence */ }
+    }
+
+    function restoreInputsFromStorage() {
+        try {
+            const state = JSON.parse(localStorage.getItem(PERSIST_KEY));
+            if (!state) return;
+            getPersistableInputs().forEach(el => {
+                if (Object.prototype.hasOwnProperty.call(state, el.id)) {
+                    el.value = state[el.id];
+                }
+            });
+        } catch (e) { /* corrupted or unavailable storage — start from defaults */ }
+    }
+
     // Init
+    restoreInputsFromStorage();
     resizeCanvas();
     calculate();
 </script>
